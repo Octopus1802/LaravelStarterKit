@@ -97,7 +97,7 @@ export default function Index({ users, roles }: Props) {
     const adminCount = users.filter(u => u.roles.some(r => r.name === 'Super-Admin')).length;
 
     return (
-        <div className="p-8 space-y-8 max-w-7xl mx-auto">
+        <div className="p-8 space-y-8 max-w-full ">
             {/* Header section */}
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-border/40 pb-6">
                 <div>
@@ -158,7 +158,7 @@ export default function Index({ users, roles }: Props) {
                                             <TableRow key={user.id} className="hover:bg-muted/30 border-b border-border/20 transition-all duration-200">
                                                 <TableCell className="pl-6 py-4">
                                                     <div className="flex items-center gap-3">
-                                                        <div 
+                                                        <div
                                                             className="h-10 w-10 rounded-full flex items-center justify-center font-bold text-sm shadow-inner shrink-0"
                                                             style={{
                                                                 backgroundColor: avatar.bg,
@@ -193,13 +193,12 @@ export default function Index({ users, roles }: Props) {
                                                                 return (
                                                                     <span
                                                                         key={r.id}
-                                                                        className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold border transition-all duration-200 ${
-                                                                            isSuper
-                                                                                ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20 shadow-inner'
-                                                                                : isManager
+                                                                        className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold border transition-all duration-200 ${isSuper
+                                                                            ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20 shadow-inner'
+                                                                            : isManager
                                                                                 ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20'
                                                                                 : 'bg-muted text-muted-foreground border-border/80'
-                                                                        }`}
+                                                                            }`}
                                                                     >
                                                                         <Shield className="h-3 w-3" />
                                                                         {r.name}
@@ -217,9 +216,9 @@ export default function Index({ users, roles }: Props) {
                                                 </TableCell>
                                                 <TableCell className="text-right pr-6 py-4">
                                                     <div className="flex items-center justify-end gap-1.5">
-                                                        <Button 
-                                                            variant="ghost" 
-                                                            size="icon" 
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
                                                             onClick={() => handleEdit(user)}
                                                             className="h-8 w-8 hover:bg-muted text-muted-foreground hover:text-foreground rounded-lg"
                                                             title="Edit User"

@@ -25,7 +25,7 @@ interface Props {
 
 export default function Index({ roles, permissions }: Props) {
     const [editingRole, setEditingRole] = useState<Role | null>(null);
-    
+
     const { data, setData, post, put, delete: destroy, reset, processing, errors } = useForm({
         name: '',
         permissions: [] as string[],
@@ -75,7 +75,7 @@ export default function Index({ roles, permissions }: Props) {
     const totalPermissions = permissions.length;
 
     return (
-        <div className="p-8 space-y-8 max-w-7xl mx-auto">
+        <div className="p-8 space-y-8 max-w-full ">
             {/* Header section */}
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-border/40 pb-6">
                 <div>
@@ -130,13 +130,12 @@ export default function Index({ roles, permissions }: Props) {
                                             <TableRow key={role.id} className="hover:bg-muted/30 border-b border-border/20 transition-all duration-200">
                                                 <TableCell className="pl-6 py-4">
                                                     <div className="flex items-center gap-2">
-                                                        <div className={`p-1.5 rounded-lg border ${
-                                                            isSuperAdmin 
-                                                                ? 'bg-amber-500/10 border-amber-500/20 text-amber-600 dark:text-amber-400' 
-                                                                : isManager
+                                                        <div className={`p-1.5 rounded-lg border ${isSuperAdmin
+                                                            ? 'bg-amber-500/10 border-amber-500/20 text-amber-600 dark:text-amber-400'
+                                                            : isManager
                                                                 ? 'bg-blue-500/10 border-blue-500/20 text-blue-600 dark:text-blue-400'
                                                                 : 'bg-muted border-border text-muted-foreground'
-                                                        }`}>
+                                                            }`}>
                                                             <Shield className="h-4 w-4" />
                                                         </div>
                                                         <span className="font-semibold text-foreground">{role.name}</span>
@@ -152,8 +151,8 @@ export default function Index({ roles, permissions }: Props) {
                                                             <span className="text-xs text-muted-foreground italic">No Permissions mapped</span>
                                                         ) : (
                                                             role.permissions.map(p => (
-                                                                <span 
-                                                                    key={p.id} 
+                                                                <span
+                                                                    key={p.id}
                                                                     className="bg-muted text-muted-foreground border border-border/80 text-xs px-2.5 py-0.5 rounded-full font-medium"
                                                                 >
                                                                     {p.name}
@@ -169,9 +168,9 @@ export default function Index({ roles, permissions }: Props) {
                                                         </span>
                                                     ) : (
                                                         <div className="flex items-center justify-end gap-1.5">
-                                                            <Button 
-                                                                variant="ghost" 
-                                                                size="icon" 
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon"
                                                                 onClick={() => handleEdit(role)}
                                                                 className="h-8 w-8 hover:bg-muted text-muted-foreground hover:text-foreground rounded-lg"
                                                                 title="Edit Role"
@@ -215,9 +214,9 @@ export default function Index({ roles, permissions }: Props) {
                             <form onSubmit={handleSubmit} className="space-y-6">
                                 <div className="space-y-2">
                                     <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block">Role Title</label>
-                                    <Input 
-                                        value={data.name} 
-                                        onChange={e => setData('name', e.target.value)} 
+                                    <Input
+                                        value={data.name}
+                                        onChange={e => setData('name', e.target.value)}
                                         placeholder="e.g. Editor, Moderator"
                                         className="h-10 pl-3 bg-card border-border/80 focus:border-primary/50 focus:ring-0 rounded-lg"
                                         required
@@ -230,14 +229,14 @@ export default function Index({ roles, permissions }: Props) {
                                     <div className="border border-border/60 p-3.5 rounded-lg bg-muted/20 space-y-2.5 max-h-60 overflow-y-auto">
                                         {permissions.map((permission) => (
                                             <div key={permission.id} className="flex items-center space-x-3 group cursor-pointer">
-                                                <Checkbox 
+                                                <Checkbox
                                                     id={`perm-${permission.id}`}
                                                     checked={data.permissions.includes(permission.name)}
                                                     onCheckedChange={(checked) => handleCheckboxChange(permission.name, !!checked)}
                                                     className="rounded border-border/90 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                                                 />
-                                                <label 
-                                                    htmlFor={`perm-${permission.id}`} 
+                                                <label
+                                                    htmlFor={`perm-${permission.id}`}
                                                     className="text-sm font-medium text-foreground/80 group-hover:text-foreground cursor-pointer select-none leading-none flex items-center gap-1.5"
                                                 >
                                                     <Key className="h-3.5 w-3.5 text-muted-foreground/60" />

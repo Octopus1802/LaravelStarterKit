@@ -10,9 +10,9 @@ import type { Auth } from '@/types';
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface AvatarUploadZoneProps {
-    /** Override the route name; defaults to 'profile.avatar.update' */
+    /** Override the upload route URL; defaults to '/settings/profile/avatar' */
     uploadRoute?: string;
-    /** Override the route name; defaults to 'profile.avatar.destroy' */
+    /** Override the delete route URL; defaults to '/settings/profile/avatar' */
     deleteRoute?: string;
     /** Extra CSS classes on the root wrapper */
     className?: string;
@@ -48,8 +48,8 @@ function getInitials(name: string): string {
  *   idle → (file chosen) → previewing → (form submitted) → uploading → idle
  */
 export default function AvatarUploadZone({
-    uploadRoute = 'profile.avatar.update',
-    deleteRoute = 'profile.avatar.destroy',
+    uploadRoute = '/settings/profile/avatar',
+    deleteRoute = '/settings/profile/avatar',
     className,
 }: AvatarUploadZoneProps) {
     // ── Inertia shared state ─────────────────────────────────────────────────
@@ -110,7 +110,7 @@ export default function AvatarUploadZone({
 
         setUploading(true);
 
-        router.post(route(uploadRoute), formData, {
+        router.post(uploadRoute, formData, {
             forceFormData: true,
             preserveScroll: true,
             onSuccess: () => {
@@ -133,7 +133,7 @@ export default function AvatarUploadZone({
         if (!hasAvatar || isLoading) return;
 
         setDeleting(true);
-        router.delete(route(deleteRoute), {
+        router.delete(deleteRoute, {
             preserveScroll: true,
             onFinish: () => setDeleting(false),
         });
