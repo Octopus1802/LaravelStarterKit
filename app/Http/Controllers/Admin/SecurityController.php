@@ -15,7 +15,7 @@ class SecurityController extends Controller
     public function index()
     {
         $settings = SecuritySetting::firstOrCreate([]);
-        $auditLogs = $this->getAuditLogs();
+        $auditLogs = $this->paginateArray($this->getAuditLogs(), 5);
 
         return Inertia::render('Admin/Security/Index', [
             'settings'  => $settings,
@@ -65,7 +65,7 @@ class SecurityController extends Controller
     public function audit()
     {
         $settings = SecuritySetting::firstOrCreate([]);
-        $auditLogs = $this->getAuditLogs();
+        $auditLogs = $this->paginateArray($this->getAuditLogs(), 10);
         return Inertia::render('Admin/Security/Audit', [
             'settings'  => $settings,
             'auditLogs' => $auditLogs,
@@ -144,6 +144,24 @@ class SecurityController extends Controller
     }
 
     /**
+     * Helper to paginate an array
+     */
+    private function paginateArray(array $items, int $perPage)
+    {
+        $currentPage = \Illuminate\Pagination\LengthAwarePaginator::resolveCurrentPage();
+        $itemCollection = collect($items);
+        $currentPageItems = $itemCollection->slice(($currentPage * $perPage) - $perPage, $perPage)->values()->all();
+        $paginatedItems = new \Illuminate\Pagination\LengthAwarePaginator(
+            $currentPageItems,
+            count($itemCollection),
+            $perPage,
+            $currentPage,
+            ['path' => \Illuminate\Pagination\LengthAwarePaginator::resolveCurrentPath()]
+        );
+        return $paginatedItems->withQueryString();
+    }
+
+    /**
      * Sample audit logs (replace with real DB query when audit_logs table exists)
      */
     private function getAuditLogs(): array
@@ -188,6 +206,94 @@ class SecurityController extends Controller
                 'user'        => 'admin@example.com',
                 'ip'          => '192.168.1.1',
                 'created_at'  => now()->subDays(2)->toIso8601String(),
+            ],
+            [
+                'id'          => 6,
+                'event'       => 'Failed Login Attempt',
+                'description' => 'Incorrect password entered for "user@example.com".',
+                'user'        => 'user@example.com',
+                'ip'          => '198.51.100.42',
+                'created_at'  => now()->subDays(2)->subHours(3)->toIso8601String(),
+            ],
+            [
+                'id'          => 7,
+                'event'       => 'User Role Assigned',
+                'description' => 'Assigned "Editor" role to user "editor@example.com".',
+                'user'        => 'admin@example.com',
+                'ip'          => '192.168.1.1',
+                'created_at'  => now()->subDays(3)->toIso8601String(),
+            ],
+            [
+                'id'          => 8,
+                'event'       => 'IP Address Whitelisted',
+                'description' => 'Added IP range "10.0.0.0/24" to white list.',
+                'user'        => 'admin@example.com',
+                'ip'          => '192.168.1.1',
+                'created_at'  => now()->subDays(4)->toIso8601String(),
+            ],
+            [
+                'id'          => 9,
+                'event'       => 'Database Backup Initiated',
+                'description' => 'Manual full database backup export generated.',
+                'user'        => 'admin@example.com',
+                'ip'          => '192.168.1.1',
+                'created_at'  => now()->subDays(4)->subHours(6)->toIso8601String(),
+            ],
+            [
+                'id'          => 10,
+                'event'       => 'MFA Reset Request',
+                'description' => 'Admin reset MFA token for "developer@example.com".',
+                'user'        => 'admin@example.com',
+                'ip'          => '192.168.1.1',
+                'created_at'  => now()->subDays(5)->toIso8601String(),
+            ],
+            [
+                'id'          => 11,
+                'event'       => 'Force HTTPS Enabled',
+                'description' => 'Security policy modified: enforce HTTP redirects to SSL.',
+                'user'        => 'admin@example.com',
+                'ip'          => '192.168.1.1',
+                'created_at'  => now()->subDays(6)->toIso8601String(),
+            ],
+            [
+                'id'          => 12,
+                'event'       => 'API Token Generated',
+                'description' => 'Personal access token generated for webhook integration.',
+                'user'        => 'manager@example.com',
+                'ip'          => '192.168.1.15',
+                'created_at'  => now()->subDays(7)->toIso8601String(),
+            ],
+            [
+                'id'          => 13,
+                'event'       => 'Suspicious Request Blocked',
+                'description' => 'SQL Injection pattern blocked by Web Application Firewall.',
+                'user'        => 'unknown_attacker@malicious.ru',
+                'ip'          => '185.220.101.5',
+                'created_at'  => now()->subDays(7)->subHours(12)->toIso8601String(),
+            ],
+            [
+                'id'          => 14,
+                'event'       => 'Admin Password Reset',
+                'description' => 'Super-Admin password updated successfully.',
+                'user'        => 'admin@example.com',
+                'ip'          => '192.168.1.1',
+                'created_at'  => now()->subDays(8)->toIso8601String(),
+            ],
+            [
+                'id'          => 15,
+                'event'       => 'Session Lifetime Changed',
+                'description' => 'Idle timeout changed from 15 to 30 minutes.',
+                'user'        => 'admin@example.com',
+                'ip'          => '192.168.1.1',
+                'created_at'  => now()->subDays(9)->toIso8601String(),
+            ],
+            [
+                'id'          => 16,
+                'event'       => 'User Deleted',
+                'description' => 'User account "temp_contractor@example.com" removed.',
+                'user'        => 'admin@example.com',
+                'ip'          => '192.168.1.1',
+                'created_at'  => now()->subDays(10)->toIso8601String(),
             ],
         ];
     }

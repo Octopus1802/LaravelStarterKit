@@ -37,9 +37,17 @@ interface AuditLog {
     created_at: string;
 }
 
+import { Pagination, LinkItem } from '@/components/Pagination';
+
 interface Props {
     settings: SecuritySettings;
-    auditLogs: AuditLog[];
+    auditLogs: {
+        data: AuditLog[];
+        links: LinkItem[];
+        from: number | null;
+        to: number | null;
+        total: number;
+    };
 }
 
 
@@ -166,10 +174,10 @@ export default function Index({ settings, auditLogs }: Props) {
                         <CardTitle className="text-md font-bold flex items-center gap-2">
                             <Terminal className="h-5 w-5 text-muted-foreground" /> Recent Security Events
                         </CardTitle>
-                        <CardDescription className="text-xs">Last 5 critical events. Go to Audit & Alerts for the full log.</CardDescription>
+                        <CardDescription className="text-xs">Paginated list of critical platform events. Go to Audit & Alerts for the full log.</CardDescription>
                     </div>
                     <Link href="/admin/security/audit" className="text-xs text-primary hover:underline flex items-center gap-1">
-                        View all <ChevronRight className="h-3 w-3" />
+                        View all & settings <ChevronRight className="h-3 w-3" />
                     </Link>
                 </CardHeader>
                 <CardContent className="p-0">
@@ -183,7 +191,7 @@ export default function Index({ settings, auditLogs }: Props) {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {auditLogs.slice(0, 5).map((log) => {
+                            {auditLogs.data.map((log) => {
                                 const isAlert = log.event.toLowerCase().includes('failed') || log.event.toLowerCase().includes('blocked');
                                 return (
                                     <TableRow key={log.id} className="border-border/20 hover:bg-muted/10 text-xs">
@@ -212,6 +220,12 @@ export default function Index({ settings, auditLogs }: Props) {
                             })}
                         </TableBody>
                     </Table>
+                    <Pagination
+                        links={auditLogs.links}
+                        from={auditLogs.from}
+                        to={auditLogs.to}
+                        total={auditLogs.total}
+                    />
                 </CardContent>
             </Card>
         </div>

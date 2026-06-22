@@ -1,9 +1,18 @@
 import { router, usePage } from '@inertiajs/react';
 import { Camera, Loader2, Trash2, UploadCloud } from 'lucide-react';
 import * as React from 'react';
+import Cropper, { Area } from 'react-easy-crop';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+} from '@/components/ui/dialog';
+import { getCroppedImg } from '@/lib/crop-image';
 import { cn } from '@/lib/utils';
 import type { Auth } from '@/types';
 
@@ -64,6 +73,14 @@ export default function AvatarUploadZone({
     const [deleting, setDeleting] = React.useState(false);
     const [error, setError] = React.useState<string | null>(null);
 
+    // ── Cropper local state ──────────────────────────────────────────────────
+    const [originalImage, setOriginalImage] = React.useState<string | null>(null);
+    const [originalFile, setOriginalFile] = React.useState<File | null>(null);
+    const [crop, setCrop] = React.useState({ x: 0, y: 0 });
+    const [zoom, setZoom] = React.useState(1);
+    const [croppedAreaPixels, setCroppedAreaPixels] = React.useState<Area | null>(null);
+    const [isCropOpen, setIsCropOpen] = React.useState(false);
+
     const fileInputRef = React.useRef<HTMLInputElement>(null);
 
     // ── Derived values ───────────────────────────────────────────────────────
@@ -77,8 +94,9 @@ export default function AvatarUploadZone({
     React.useEffect(() => {
         return () => {
             if (preview) URL.revokeObjectURL(preview);
+            if (originalImage) URL.revokeObjectURL(originalImage);
         };
-    }, [preview]);
+    }, [preview, originalImage]);
 
     // ── Validation ───────────────────────────────────────────────────────────
     function validateFile(file: File): string | null {
@@ -91,7 +109,7 @@ export default function AvatarUploadZone({
         return null;
     }
 
-    // ── Upload handler ───────────────────────────────────────────────────────
+    // ── Upload / Crop handler ────────────────────────────────────────────────
     function handleFile(file: File) {
         const validationError = validateFile(file);
         if (validationError) {
@@ -101,31 +119,74 @@ export default function AvatarUploadZone({
 
         setError(null);
 
-        // Build local object URL for instant preview before server confirms
-        if (preview) URL.revokeObjectURL(preview);
-        setPreview(URL.createObjectURL(file));
-
-        const formData = new FormData();
-        formData.append('avatar', file);
-
-        setUploading(true);
-
-        router.post(uploadRoute, formData, {
-            forceFormData: true,
-            preserveScroll: true,
-            onSuccess: () => {
-                // Inertia reloads shared props — preview can be cleared because
-                // the server now returns the canonical URL via avatar_url.
-                setPreview(null);
-            },
-            onError: (errors) => {
-                setError(errors.avatar ?? 'Upload failed. Please try again.');
-                // Revert the optimistic preview on failure
-                setPreview(null);
-            },
-            onFinish: () => setUploading(false),
-        });
+        setOriginalFile(file);
+        const fileUrl = URL.createObjectURL(file);
+        setOriginalImage(fileUrl);
+        setCrop({ x: 0, y: 0 });
+        setZoom(1);
+        setIsCropOpen(true);
     }
+
+    const cleanupCropStates = () => {
+        if (originalImage) {
+            URL.revokeObjectURL(originalImage);
+        }
+        setOriginalImage(null);
+        setOriginalFile(null);
+        setCroppedAreaPixels(null);
+    };
+
+    const handleCropCancel = () => {
+        setIsCropOpen(false);
+        cleanupCropStates();
+    };
+
+    const handleCropSave = async () => {
+        if (!originalImage || !croppedAreaPixels) return;
+
+        try {
+            setUploading(true);
+            setIsCropOpen(false);
+
+            const croppedBlob = await getCroppedImg(originalImage, croppedAreaPixels);
+            if (!croppedBlob) {
+                setError('Could not crop image.');
+                setUploading(false);
+                cleanupCropStates();
+                return;
+            }
+
+            // Create a local object URL for the optimistic UI preview
+            if (preview) URL.revokeObjectURL(preview);
+            setPreview(URL.createObjectURL(croppedBlob));
+
+            const formData = new FormData();
+            const extension = originalFile?.name.split('.').pop() || 'jpg';
+            const fileToUpload = new File([croppedBlob], `avatar.${extension}`, {
+                type: croppedBlob.type,
+            });
+            formData.append('avatar', fileToUpload);
+
+            router.post(uploadRoute, formData, {
+                forceFormData: true,
+                preserveScroll: true,
+                onSuccess: () => {
+                    setPreview(null);
+                    cleanupCropStates();
+                },
+                onError: (errors) => {
+                    setError(errors.avatar ?? 'Upload failed. Please try again.');
+                    setPreview(null);
+                    cleanupCropStates();
+                },
+                onFinish: () => setUploading(false),
+            });
+        } catch (err) {
+            setError('An error occurred during cropping.');
+            setUploading(false);
+            cleanupCropStates();
+        }
+    };
 
     // ── Delete handler ───────────────────────────────────────────────────────
     function handleDelete(e: React.MouseEvent) {
@@ -290,6 +351,66 @@ export default function AvatarUploadZone({
                     {error}
                 </p>
             )}
+
+            {/* ── Crop Modal ── */}
+            <Dialog open={isCropOpen} onOpenChange={(open) => {
+                if (!open) handleCropCancel();
+            }}>
+                <DialogContent className="sm:max-w-md max-w-full">
+                    <DialogHeader>
+                        <DialogTitle>Crop Profile Image</DialogTitle>
+                    </DialogHeader>
+                    <div className="relative h-72 w-full bg-neutral-950 rounded-md overflow-hidden my-4 border">
+                        {originalImage && (
+                            <Cropper
+                                image={originalImage}
+                                crop={crop}
+                                zoom={zoom}
+                                aspect={1}
+                                cropShape="round"
+                                showGrid={false}
+                                onCropChange={setCrop}
+                                onZoomChange={setZoom}
+                                onCropComplete={(_, croppedPixels) => {
+                                    setCroppedAreaPixels(croppedPixels);
+                                }}
+                            />
+                        )}
+                    </div>
+                    <div className="flex flex-col gap-2">
+                        <label htmlFor="zoom-slider" className="text-xs font-medium text-muted-foreground">Zoom</label>
+                        <input
+                            id="zoom-slider"
+                            type="range"
+                            value={zoom}
+                            min={1}
+                            max={3}
+                            step={0.1}
+                            aria-label="Zoom"
+                            onChange={(e) => setZoom(Number(e.target.value))}
+                            className="w-full h-1 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-primary"
+                        />
+                    </div>
+                    <DialogFooter className="mt-4 flex sm:flex-row flex-col gap-2">
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            onClick={handleCropCancel}
+                            disabled={uploading}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="default"
+                            onClick={handleCropSave}
+                            disabled={uploading}
+                        >
+                            {uploading ? 'Uploading...' : 'Save & Upload'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

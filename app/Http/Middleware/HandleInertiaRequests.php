@@ -48,7 +48,7 @@ class HandleInertiaRequests extends Middleware
                     // (configured via useFallbackUrl) when no avatar is set.
                     'avatar_url' => $user->getFirstMediaUrl('avatar', 'thumb')
                         ?: $user->getFirstMediaUrl('avatar')
-                        ?: '/images/default-avatar.png',
+                        ?: '/images/default-avatar.svg',
                 ]) : null,
                 'roles' => $user ? $user->getRoleNames() : [],
                 'permissions' => $user ? $user->getAllPermissions()->pluck('name') : [],

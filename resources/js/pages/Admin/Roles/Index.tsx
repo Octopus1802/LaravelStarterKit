@@ -7,6 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Shield, ShieldAlert, Key, Plus, Trash2, Edit3, Lock, Check, X, Info } from 'lucide-react';
 
+import { Pagination, LinkItem } from '@/components/Pagination';
+
 interface Permission {
     id: number;
     name: string;
@@ -19,7 +21,13 @@ interface Role {
 }
 
 interface Props {
-    roles: Role[];
+    roles: {
+        data: Role[];
+        links: LinkItem[];
+        from: number | null;
+        to: number | null;
+        total: number;
+    };
     permissions: Permission[];
 }
 
@@ -71,7 +79,7 @@ export default function Index({ roles, permissions }: Props) {
         }
     };
 
-    const totalRoles = roles.length;
+    const totalRoles = roles.total;
     const totalPermissions = permissions.length;
 
     return (
@@ -122,7 +130,7 @@ export default function Index({ roles, permissions }: Props) {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {roles.map((role) => {
+                                    {roles.data.map((role) => {
                                         const isSuperAdmin = role.name === 'Super-Admin';
                                         const isManager = role.name === 'Manager';
 
@@ -194,6 +202,12 @@ export default function Index({ roles, permissions }: Props) {
                                     })}
                                 </TableBody>
                             </Table>
+                            <Pagination
+                                links={roles.links}
+                                from={roles.from}
+                                to={roles.to}
+                                total={roles.total}
+                            />
                         </CardContent>
                     </Card>
                 </div>

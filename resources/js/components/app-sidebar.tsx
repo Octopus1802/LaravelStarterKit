@@ -1,9 +1,11 @@
-import { Link } from '@inertiajs/react';
-import { BookOpen, FolderGit2, LayoutGrid, ShieldAlert, Users } from 'lucide-react';
+import { Link, router } from '@inertiajs/react';
+import { BookOpen, FolderGit2, LayoutGrid, LogOut, MessageSquare, ShieldAlert, Users } from 'lucide-react';
+import { useMobileNavigation } from '@/hooks/use-mobile-navigation';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavSecurity } from '@/components/nav-security';
+import { logout } from '@/routes';
 import { NavUser } from '@/components/nav-user';
 import {
     Sidebar,
@@ -23,6 +25,12 @@ const mainNavItems: NavItem[] = [
         href: dashboard(),
         icon: LayoutGrid,
         iconClassName: 'text-blue-500 dark:text-blue-400',
+    },
+    {
+        title: 'Chat',
+        href: '/chat',
+        icon: MessageSquare,
+        iconClassName: 'text-pink-500 dark:text-pink-400',
     },
 ];
 
@@ -69,6 +77,13 @@ const footerNavItems: NavItem[] = [
 ];
 
 export function AppSidebar() {
+    const cleanup = useMobileNavigation();
+
+    const handleLogout = () => {
+        cleanup();
+        router.flushAll();
+    };
+
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
@@ -91,8 +106,26 @@ export function AppSidebar() {
             </SidebarContent>
 
             <SidebarFooter>
-                <NavFooter items={footerNavItems} className="mt-auto" />
-                <NavUser />
+                {/* <NavFooter items={footerNavItems} className="mt-auto" /> */}
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton
+                            asChild
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-950/30"
+                        >
+                            <Link
+                                href={logout()}
+                                as="button"
+                                onClick={handleLogout}
+                                data-test="logout-button"
+                            >
+                                <LogOut />
+                                <span>Log out</span>
+                            </Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarMenu>
+                {/* <NavUser /> */}
             </SidebarFooter>
         </Sidebar>
     );

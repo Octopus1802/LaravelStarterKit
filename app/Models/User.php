@@ -73,6 +73,25 @@ class User extends Authenticatable implements HasMedia, PasskeyUser
     }
 
     /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array<int, string>
+     */
+    protected $appends = [
+        'avatar_url',
+    ];
+
+    /**
+     * Get the user's avatar URL.
+     */
+    public function getAvatarUrlAttribute(): string
+    {
+        return $this->getFirstMediaUrl('avatar', 'thumb')
+            ?: $this->getFirstMediaUrl('avatar')
+            ?: '/images/default-avatar.svg';
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>

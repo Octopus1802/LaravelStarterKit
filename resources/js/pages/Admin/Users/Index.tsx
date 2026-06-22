@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Users, UserPlus, Trash2, Edit3, Mail, Shield, ShieldCheck, Calendar, Info, X } from 'lucide-react';
 import type { Auth } from '@/types';
+import { Pagination, LinkItem } from '@/components/Pagination';
 
 interface Role {
     id: number;
@@ -23,7 +24,13 @@ interface User {
 }
 
 interface Props {
-    users: User[];
+    users: {
+        data: User[];
+        links: LinkItem[];
+        from: number | null;
+        to: number | null;
+        total: number;
+    };
     roles: Role[];
 }
 
@@ -93,8 +100,8 @@ export default function Index({ users, roles }: Props) {
         }
     };
 
-    const totalUsers = users.length;
-    const adminCount = users.filter(u => u.roles.some(r => r.name === 'Super-Admin')).length;
+    const totalUsers = users.total;
+    const adminCount = users.data.filter(u => u.roles.some(r => r.name === 'Super-Admin')).length;
 
     return (
         <div className="p-8 space-y-8 max-w-full ">
@@ -145,7 +152,7 @@ export default function Index({ users, roles }: Props) {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {users.map((user) => {
+                                    {users.data.map((user) => {
                                         const initials = user.name
                                             .split(' ')
                                             .map((n) => n[0])
@@ -247,6 +254,12 @@ export default function Index({ users, roles }: Props) {
                                     })}
                                 </TableBody>
                             </Table>
+                            <Pagination
+                                links={users.links}
+                                from={users.from}
+                                to={users.to}
+                                total={users.total}
+                            />
                         </CardContent>
                     </Card>
                 </div>

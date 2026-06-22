@@ -25,6 +25,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Security Settings — Unified update with section param
     Route::put('admin/security/{section}', [AdminSecurityController::class, 'update'])->name('admin.security.update');
+
+    // Chat System Routes
+    Route::get('chat', [\App\Http\Controllers\ChatController::class, 'fallback'])->name('chat.fallback');
+    Route::get('chat/{receiver}', [\App\Http\Controllers\ChatController::class, 'index'])->name('chat.index');
+    Route::post('chat/{receiver}', [\App\Http\Controllers\ChatController::class, 'store'])->name('chat.store');
 });
 
 require __DIR__.'/settings.php';

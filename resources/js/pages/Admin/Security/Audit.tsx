@@ -26,9 +26,17 @@ interface AuditLog {
     created_at: string;
 }
 
+import { Pagination, LinkItem } from '@/components/Pagination';
+
 interface Props {
     settings: SecuritySettings;
-    auditLogs: AuditLog[];
+    auditLogs: {
+        data: AuditLog[];
+        links: LinkItem[];
+        from: number | null;
+        to: number | null;
+        total: number;
+    };
 }
 
 export default function Audit({ settings, auditLogs }: Props) {
@@ -146,7 +154,7 @@ export default function Audit({ settings, auditLogs }: Props) {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {auditLogs.map((log) => {
+                                    {auditLogs.data.map((log) => {
                                         const isAlert = log.event.toLowerCase().includes('failed') || log.event.toLowerCase().includes('blocked');
                                         return (
                                             <TableRow key={log.id} className="border-border/20 hover:bg-muted/10 text-xs">
@@ -176,6 +184,12 @@ export default function Audit({ settings, auditLogs }: Props) {
                                     })}
                                 </TableBody>
                             </Table>
+                            <Pagination
+                                links={auditLogs.links}
+                                from={auditLogs.from}
+                                to={auditLogs.to}
+                                total={auditLogs.total}
+                            />
                         </CardContent>
                     </Card>
                 </div>
