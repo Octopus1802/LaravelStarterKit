@@ -5,6 +5,7 @@ namespace App\Providers;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
@@ -30,6 +31,8 @@ class AppServiceProvider extends ServiceProvider
         Gate::before(function ($user, $ability) {
             return $user->hasRole('Super-Admin') ? true : null;
         });
+
+        $this->registerSecurityListeners();
     }
 
     /**
@@ -43,14 +46,69 @@ class AppServiceProvider extends ServiceProvider
             app()->isProduction(),
         );
 
-        Password::defaults(fn (): ?Password => app()->isProduction()
-            ? Password::min(12)
-                ->mixedCase()
-                ->letters()
-                ->numbers()
-                ->symbols()
-                ->uncompromised()
-            : null,
-        );
+        Password::defaults(fn (): Password => $this->getPasswordDefaults());
+    }
+
+    /**
+     * Get dynamic password rules based on security settings.
+     */
+    protected function getPasswordDefaults(): Password
+    {
+        if (app()->runningUnitTests()) {
+            return Password::min(8);
+        }
+
+        try {
+            $settings = \App\Models\SecuritySetting::firstOrCreate([]);
+            
+            $rule = Password::min($settings->password_min_length);
+            
+            if ($settings->password_require_uppercase) {
+                $rule->mixedCase();
+            }
+            if ($settings->password_require_numeric) {
+                $rule->numbers();
+            }
+            if ($settings->password_require_special) {
+                $rule->symbols();
+            }
+            if ($settings->password_ban_common) {
+                $rule->uncompromised();
+            }
+            
+            return $rule;
+        } catch (\Exception $e) {
+            return Password::min(12)->mixedCase()->numbers()->symbols();
+        }
+    }
+
+    /**
+     * Register listeners for security/auth events to log to the audit trail.
+     */
+    protected function registerSecurityListeners(): void
+    {
+        Event::listen(\Illuminate\Auth\Events\Login::class, function ($event) {
+            \Illuminate\Support\Facades\Cache::put("user_session_" . $event->user->id, session()->getId(), 86400);
+            \App\Services\AuditLogger::log('Successful Login', 'User logged in successfully.', $event->user->id, $event->user->email);
+        });
+
+        Event::listen(\Illuminate\Auth\Events\Failed::class, function ($event) {
+            $email = $event->credentials['email'] ?? ($event->credentials['username'] ?? 'unknown');
+            \App\Services\AuditLogger::log('Failed Login Attempt', "Incorrect credentials entered for user: $email.", $event->user?->id, $email);
+        });
+
+        Event::listen(\Illuminate\Auth\Events\Logout::class, function ($event) {
+            if ($event->user) {
+                \App\Services\AuditLogger::log('User Logout', 'User logged out.', $event->user->id, $event->user->email);
+            }
+        });
+
+        Event::listen(\Illuminate\Auth\Events\Registered::class, function ($event) {
+            \App\Services\AuditLogger::log('User Account Registered', 'User registered a new account.', $event->user->id, $event->user->email);
+        });
+
+        Event::listen(\Illuminate\Auth\Events\PasswordReset::class, function ($event) {
+            \App\Services\AuditLogger::log('Password Reset', 'User reset their password.', $event->user->id, $event->user->email);
+        });
     }
 }

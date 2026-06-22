@@ -8,6 +8,46 @@ class SecuritySetting extends Model
 {
     protected $table = 'security_settings';
 
+    protected $attributes = [
+        'password_min_length'           => 12,
+        'password_require_uppercase'    => true,
+        'password_require_numeric'      => true,
+        'password_require_special'      => true,
+        'password_max_age_days'         => 90,
+        'password_history_count'        => 5,
+        'password_ban_common'           => true,
+        'login_max_attempts'            => 5,
+        'lockout_duration_minutes'      => 15,
+        'captcha_after_attempts'        => 3,
+        'progressive_lockout_enabled'   => false,
+        'session_lifetime_minutes'      => 120,
+        'idle_timeout_minutes'          => 30,
+        'remember_me_max_days'          => 30,
+        'session_invalidate_on_ip_change' => true,
+        'session_invalidate_on_ua_change' => true,
+        'session_single_device_only'    => false,
+        'enforce_mfa_admins'            => false,
+        'enforce_mfa_all_users'         => false,
+        'mfa_grace_period_hours'        => 24,
+        'allowed_mfa_methods'           => '["totp", "passkey"]',
+        'backup_codes_count'            => 8,
+        'ip_whitelist'                  => null,
+        'ip_blacklist'                  => null,
+        'allow_tor_exit_nodes'          => false,
+        'geo_block_countries'           => null,
+        'force_https'                   => true,
+        'registration_enabled'          => true,
+        'require_email_verification'    => true,
+        'account_inactive_days'         => 90,
+        'allow_self_deletion'           => false,
+        'max_users'                     => null,
+        'audit_log_retention_days'      => 365,
+        'log_failed_logins'             => true,
+        'log_permission_changes'        => true,
+        'notify_admin_on_breach'        => true,
+        'notify_admin_email'            => null,
+    ];
+
     protected $fillable = [
         // Password Policy
         'password_min_length',

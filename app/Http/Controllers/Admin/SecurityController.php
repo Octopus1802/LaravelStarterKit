@@ -15,7 +15,21 @@ class SecurityController extends Controller
     public function index()
     {
         $settings = SecuritySetting::firstOrCreate([]);
-        $auditLogs = $this->paginateArray($this->getAuditLogs(), 5);
+        
+        $auditLogs = \App\Models\AuditLog::with('user')
+            ->orderBy('created_at', 'desc')
+            ->paginate(5);
+
+        $auditLogs->getCollection()->transform(function ($log) {
+            return [
+                'id'          => $log->id,
+                'event'       => $log->event,
+                'description' => $log->description,
+                'user'        => $log->user ? $log->user->email : ($log->user_email ?? 'System'),
+                'ip'          => $log->ip_address ?? 'N/A',
+                'created_at'  => $log->created_at->toIso8601String(),
+            ];
+        });
 
         return Inertia::render('Admin/Security/Index', [
             'settings'  => $settings,
@@ -65,7 +79,22 @@ class SecurityController extends Controller
     public function audit()
     {
         $settings = SecuritySetting::firstOrCreate([]);
-        $auditLogs = $this->paginateArray($this->getAuditLogs(), 10);
+        
+        $auditLogs = \App\Models\AuditLog::with('user')
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        $auditLogs->getCollection()->transform(function ($log) {
+            return [
+                'id'          => $log->id,
+                'event'       => $log->event,
+                'description' => $log->description,
+                'user'        => $log->user ? $log->user->email : ($log->user_email ?? 'System'),
+                'ip'          => $log->ip_address ?? 'N/A',
+                'created_at'  => $log->created_at->toIso8601String(),
+            ];
+        });
+
         return Inertia::render('Admin/Security/Audit', [
             'settings'  => $settings,
             'auditLogs' => $auditLogs,
@@ -78,6 +107,7 @@ class SecurityController extends Controller
     public function update(Request $request, string $section)
     {
         $settings = SecuritySetting::firstOrCreate([]);
+        $oldSettings = $settings->replicate();
 
         $rules = match ($section) {
             'password' => [
@@ -140,161 +170,67 @@ class SecurityController extends Controller
 
         $settings->update($validated);
 
-        return back()->with('message', 'Security settings updated successfully.');
-    }
-
-    /**
-     * Helper to paginate an array
-     */
-    private function paginateArray(array $items, int $perPage)
-    {
-        $currentPage = \Illuminate\Pagination\LengthAwarePaginator::resolveCurrentPage();
-        $itemCollection = collect($items);
-        $currentPageItems = $itemCollection->slice(($currentPage * $perPage) - $perPage, $perPage)->values()->all();
-        $paginatedItems = new \Illuminate\Pagination\LengthAwarePaginator(
-            $currentPageItems,
-            count($itemCollection),
-            $perPage,
-            $currentPage,
-            ['path' => \Illuminate\Pagination\LengthAwarePaginator::resolveCurrentPath()]
-        );
-        return $paginatedItems->withQueryString();
-    }
-
-    /**
-     * Sample audit logs (replace with real DB query when audit_logs table exists)
-     */
-    private function getAuditLogs(): array
-    {
-        return [
-            [
-                'id'          => 1,
-                'event'       => 'MFA Settings Toggled',
-                'description' => 'Enforce MFA globally was disabled.',
-                'user'        => 'admin@example.com',
-                'ip'          => '192.168.1.1',
-                'created_at'  => now()->subMinutes(12)->toIso8601String(),
-            ],
-            [
-                'id'          => 2,
-                'event'       => 'Role Permissions Updated',
-                'description' => 'Manager permission list updated.',
-                'user'        => 'admin@example.com',
-                'ip'          => '192.168.1.1',
-                'created_at'  => now()->subHours(2)->toIso8601String(),
-            ],
-            [
-                'id'          => 3,
-                'event'       => 'Failed Admin Login Attempt',
-                'description' => 'IP blocked temporarily due to brute force threshold.',
-                'user'        => 'unknown_attacker@hack.net',
-                'ip'          => '45.132.99.12',
-                'created_at'  => now()->subHours(5)->toIso8601String(),
-            ],
-            [
-                'id'          => 4,
-                'event'       => 'User Account Registered',
-                'description' => 'User "manager@example.com" registered as Manager.',
-                'user'        => 'admin@example.com',
-                'ip'          => '192.168.1.1',
-                'created_at'  => now()->subDays(1)->toIso8601String(),
-            ],
-            [
-                'id'          => 5,
-                'event'       => 'Security Settings Updated',
-                'description' => 'Password policy updated: min length changed to 14.',
-                'user'        => 'admin@example.com',
-                'ip'          => '192.168.1.1',
-                'created_at'  => now()->subDays(2)->toIso8601String(),
-            ],
-            [
-                'id'          => 6,
-                'event'       => 'Failed Login Attempt',
-                'description' => 'Incorrect password entered for "user@example.com".',
-                'user'        => 'user@example.com',
-                'ip'          => '198.51.100.42',
-                'created_at'  => now()->subDays(2)->subHours(3)->toIso8601String(),
-            ],
-            [
-                'id'          => 7,
-                'event'       => 'User Role Assigned',
-                'description' => 'Assigned "Editor" role to user "editor@example.com".',
-                'user'        => 'admin@example.com',
-                'ip'          => '192.168.1.1',
-                'created_at'  => now()->subDays(3)->toIso8601String(),
-            ],
-            [
-                'id'          => 8,
-                'event'       => 'IP Address Whitelisted',
-                'description' => 'Added IP range "10.0.0.0/24" to white list.',
-                'user'        => 'admin@example.com',
-                'ip'          => '192.168.1.1',
-                'created_at'  => now()->subDays(4)->toIso8601String(),
-            ],
-            [
-                'id'          => 9,
-                'event'       => 'Database Backup Initiated',
-                'description' => 'Manual full database backup export generated.',
-                'user'        => 'admin@example.com',
-                'ip'          => '192.168.1.1',
-                'created_at'  => now()->subDays(4)->subHours(6)->toIso8601String(),
-            ],
-            [
-                'id'          => 10,
-                'event'       => 'MFA Reset Request',
-                'description' => 'Admin reset MFA token for "developer@example.com".',
-                'user'        => 'admin@example.com',
-                'ip'          => '192.168.1.1',
-                'created_at'  => now()->subDays(5)->toIso8601String(),
-            ],
-            [
-                'id'          => 11,
-                'event'       => 'Force HTTPS Enabled',
-                'description' => 'Security policy modified: enforce HTTP redirects to SSL.',
-                'user'        => 'admin@example.com',
-                'ip'          => '192.168.1.1',
-                'created_at'  => now()->subDays(6)->toIso8601String(),
-            ],
-            [
-                'id'          => 12,
-                'event'       => 'API Token Generated',
-                'description' => 'Personal access token generated for webhook integration.',
-                'user'        => 'manager@example.com',
-                'ip'          => '192.168.1.15',
-                'created_at'  => now()->subDays(7)->toIso8601String(),
-            ],
-            [
-                'id'          => 13,
-                'event'       => 'Suspicious Request Blocked',
-                'description' => 'SQL Injection pattern blocked by Web Application Firewall.',
-                'user'        => 'unknown_attacker@malicious.ru',
-                'ip'          => '185.220.101.5',
-                'created_at'  => now()->subDays(7)->subHours(12)->toIso8601String(),
-            ],
-            [
-                'id'          => 14,
-                'event'       => 'Admin Password Reset',
-                'description' => 'Super-Admin password updated successfully.',
-                'user'        => 'admin@example.com',
-                'ip'          => '192.168.1.1',
-                'created_at'  => now()->subDays(8)->toIso8601String(),
-            ],
-            [
-                'id'          => 15,
-                'event'       => 'Session Lifetime Changed',
-                'description' => 'Idle timeout changed from 15 to 30 minutes.',
-                'user'        => 'admin@example.com',
-                'ip'          => '192.168.1.1',
-                'created_at'  => now()->subDays(9)->toIso8601String(),
-            ],
-            [
-                'id'          => 16,
-                'event'       => 'User Deleted',
-                'description' => 'User account "temp_contractor@example.com" removed.',
-                'user'        => 'admin@example.com',
-                'ip'          => '192.168.1.1',
-                'created_at'  => now()->subDays(10)->toIso8601String(),
-            ],
+        // Compare old and new settings to log human-readable audit descriptions
+        $changes = [];
+        $keyLabels = [
+            'password_min_length' => 'Min length',
+            'password_require_uppercase' => 'Require uppercase',
+            'password_require_numeric' => 'Require numbers',
+            'password_require_special' => 'Require special characters',
+            'password_ban_common' => 'Ban common passwords',
+            'password_max_age_days' => 'Max password age',
+            'password_history_count' => 'Password history count',
+            'login_max_attempts' => 'Max login attempts',
+            'lockout_duration_minutes' => 'Lockout duration',
+            'captcha_after_attempts' => 'CAPTCHA attempts threshold',
+            'progressive_lockout_enabled' => 'Progressive lockout',
+            'session_lifetime_minutes' => 'Session lifetime',
+            'idle_timeout_minutes' => 'Idle timeout',
+            'remember_me_max_days' => 'Remember me duration',
+            'session_invalidate_on_ip_change' => 'Invalidate session on IP change',
+            'session_invalidate_on_ua_change' => 'Invalidate session on User Agent change',
+            'session_single_device_only' => 'Single active session policy',
+            'enforce_mfa_admins' => 'MFA enforcement for admins',
+            'enforce_mfa_all_users' => 'MFA enforcement for all users',
+            'mfa_grace_period_hours' => 'MFA grace period',
+            'backup_codes_count' => 'Backup codes count',
+            'ip_whitelist' => 'IP whitelist',
+            'ip_blacklist' => 'IP blacklist',
+            'allow_tor_exit_nodes' => 'Tor exit nodes access',
+            'geo_block_countries' => 'Geo-blocked countries',
+            'force_https' => 'Force HTTPS redirection',
+            'registration_enabled' => 'User registration',
+            'require_email_verification' => 'Require email verification',
+            'account_inactive_days' => 'Account inactivity threshold',
+            'allow_self_deletion' => 'Allow self deletion',
+            'max_users' => 'Max user cap',
+            'audit_log_retention_days' => 'Audit log retention period',
+            'log_failed_logins' => 'Failed logins logging',
+            'log_permission_changes' => 'Permission changes logging',
+            'notify_admin_on_breach' => 'Admin breach notification alert',
+            'notify_admin_email' => 'Admin breach alert email',
         ];
+
+        foreach ($validated as $key => $value) {
+            $oldVal = $oldSettings->$key;
+            $newVal = $settings->$key;
+
+            if ($oldVal != $newVal) {
+                $label = $keyLabels[$key] ?? $key;
+                
+                // Format values for human readability
+                $oldValStr = is_bool($oldVal) ? ($oldVal ? 'enabled' : 'disabled') : (is_null($oldVal) ? 'none' : (string)$oldVal);
+                $newValStr = is_bool($newVal) ? ($newVal ? 'enabled' : 'disabled') : (is_null($newVal) ? 'none' : (string)$newVal);
+
+                $changes[] = "$label changed from \"$oldValStr\" to \"$newValStr\"";
+            }
+        }
+
+        if (!empty($changes)) {
+            $description = ucfirst($section) . " settings updated: " . implode(', ', $changes) . ".";
+            \App\Services\AuditLogger::log('Security Settings Updated', $description);
+        }
+
+        return back()->with('message', 'Security settings updated successfully.');
     }
 }

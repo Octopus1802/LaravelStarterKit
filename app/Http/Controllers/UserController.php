@@ -36,6 +36,8 @@ class UserController extends Controller
             $user->assignRole($request->roles);
         }
 
+        \App\Services\AuditLogger::log('User Account Registered', "User account \"{$user->email}\" was created by admin with roles: " . implode(', ', $request->roles ?? []) . ".", $user->id, $user->email);
+
         return back()->with('message', 'User created successfully.');
     }
 
@@ -71,6 +73,8 @@ class UserController extends Controller
             $user->syncRoles($request->roles);
         }
 
+        \App\Services\AuditLogger::log('User Role Assigned', "User account \"{$user->email}\" was updated. Roles synced to: " . implode(', ', $request->roles ?? []) . ".", $user->id, $user->email);
+
         return back()->with('message', 'User updated successfully.');
     }
 
@@ -88,6 +92,8 @@ class UserController extends Controller
                 return back()->with('error', 'Cannot delete the only remaining Super-Admin user.');
             }
         }
+
+        \App\Services\AuditLogger::log('User Deleted', "User account \"{$user->email}\" was deleted.", $user->id, $user->email);
 
         $user->delete();
 

@@ -23,6 +23,8 @@ class RoleController extends Controller
         $role = Role::create(['name' => $request->name]);
         $role->syncPermissions($request->permissions ?? []);
 
+        \App\Services\AuditLogger::log('Role Created', "Role \"{$role->name}\" was created.");
+
         return back()->with('message', 'Role created successfully.');
     }
 
@@ -36,6 +38,8 @@ class RoleController extends Controller
         $role->update(['name' => $request->name]);
         $role->syncPermissions($request->permissions ?? []);
 
+        \App\Services\AuditLogger::log('Role Permissions Updated', "Permissions for role \"{$role->name}\" were updated.");
+
         return back()->with('message', 'Role updated successfully.');
     }
 
@@ -44,6 +48,8 @@ class RoleController extends Controller
         if ($role->name === 'Super-Admin') {
             return back()->with('error', 'The Super-Admin role cannot be deleted.');
         }
+
+        \App\Services\AuditLogger::log('Role Deleted', "Role \"{$role->name}\" was deleted.");
 
         $role->delete();
         return back()->with('message', 'Role deleted successfully.');
