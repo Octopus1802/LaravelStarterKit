@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Settings\ProfileController;
+use App\Http\Controllers\Settings\ProfileMediaController;
 use App\Http\Controllers\Settings\SecurityController;
 use Illuminate\Auth\Middleware\RequirePassword;
 use Illuminate\Support\Facades\Route;
@@ -10,6 +11,10 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('settings/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('settings/profile', [ProfileController::class, 'update'])->name('profile.update');
+
+    // Avatar management — secured to the authenticated user's model context
+    Route::post('settings/profile/avatar', [ProfileMediaController::class, 'updateAvatar'])->name('profile.avatar.update');
+    Route::delete('settings/profile/avatar', [ProfileMediaController::class, 'destroyAvatar'])->name('profile.avatar.destroy');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {

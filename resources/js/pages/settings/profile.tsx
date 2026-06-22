@@ -1,6 +1,7 @@
 import { Form, Head, usePage } from '@inertiajs/react';
 import { Link } from '@inertiajs/react';
 import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
+import AvatarUploadZone from '@/components/avatar-upload-zone';
 import DeleteUser from '@/components/delete-user';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
@@ -37,6 +38,10 @@ export default function Profile({
                     description="Update your name and email address"
                 />
 
+                {/* Avatar uploader — integrates with Spatie Media Library */}
+                <div className="flex justify-center py-2">
+                    <AvatarUploadZone />
+                </div>
                 <Form
                     {...ProfileController.update.form()}
                     options={{

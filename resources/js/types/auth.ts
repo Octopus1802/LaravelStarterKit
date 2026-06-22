@@ -3,6 +3,8 @@ export type User = {
     name: string;
     email: string;
     avatar?: string;
+    /** Spatie Media Library URL — thumb conversion, falls back to /images/default-avatar.png */
+    avatar_url: string;
     email_verified_at: string | null;
     two_factor_enabled?: boolean;
     created_at: string;

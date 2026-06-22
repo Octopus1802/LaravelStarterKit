@@ -41,7 +41,15 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'name' => config('app.name'),
             'auth' => [
-                'user' => $user,
+                'user' => $user ? array_merge($user->toArray(), [
+                    // Append the Spatie Media Library avatar URL so the React
+                    // layer receives it on every page mount without an extra
+                    // API round-trip. Falls back to /images/default-avatar.png
+                    // (configured via useFallbackUrl) when no avatar is set.
+                    'avatar_url' => $user->getFirstMediaUrl('avatar', 'thumb')
+                        ?: $user->getFirstMediaUrl('avatar')
+                        ?: '/images/default-avatar.png',
+                ]) : null,
                 'roles' => $user ? $user->getRoleNames() : [],
                 'permissions' => $user ? $user->getAllPermissions()->pluck('name') : [],
             ],

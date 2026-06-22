@@ -13,6 +13,9 @@ use Illuminate\Support\Carbon;
 use Laravel\Fortify\Contracts\PasskeyUser;
 use Laravel\Fortify\PasskeyAuthenticatable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Spatie\Permission\Traits\HasRoles;
 
 /**
@@ -30,10 +33,44 @@ use Spatie\Permission\Traits\HasRoles;
  */
 #[Fillable(['name', 'email', 'password'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
-class User extends Authenticatable implements PasskeyUser
+class User extends Authenticatable implements HasMedia, PasskeyUser
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable, HasRoles;
+    use HasFactory, InteractsWithMedia, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable, HasRoles;
+
+    /**
+     * Register Spatie media collections for this model.
+     *
+     * The 'avatar' collection is limited to a single file — any new upload
+     * automatically replaces the previous one. A fallback URL is returned
+     * when no media has been attached yet.
+     */
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('avatar')
+            ->singleFile()
+            ->useFallbackUrl('/images/default-avatar.svg')
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp']);
+    }
+
+    /**
+     * Register media conversions (async image-processing pipelines).
+     *
+     * The 'thumb' conversion produces a 150 × 150 square using spatie/image
+     * v3's Fit::Crop strategy so the image always fills the frame without
+     * letterboxing. The `.queued()` call means this job is dispatched to
+     * the queue (implements QueuedConversion internally), so the HTTP
+     * response returns immediately and heavy manipulation runs in the
+     * background via a queue worker.
+     *
+     * Run `php artisan queue:work` (or `queue:listen`) to process jobs.
+     */
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        $this->addMediaConversion('thumb')
+            ->fit(\Spatie\Image\Enums\Fit::Crop, 150, 150)
+            ->queued();
+    }
 
     /**
      * Get the attributes that should be cast.
