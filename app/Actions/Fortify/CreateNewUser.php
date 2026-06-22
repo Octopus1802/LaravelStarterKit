@@ -19,6 +19,11 @@ class CreateNewUser implements CreatesNewUsers
      */
     public function create(array $input): User
     {
+        $settings = \App\Models\SecuritySetting::firstOrCreate([]);
+        if (! $settings->registration_enabled) {
+            abort(403, 'Registration is currently disabled.');
+        }
+
         Validator::make($input, [
             ...$this->profileRules(),
             'password' => $this->passwordRules(),
