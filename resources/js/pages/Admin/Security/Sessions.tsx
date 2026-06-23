@@ -26,16 +26,16 @@ interface Props {
 
 export default function Sessions({ settings }: Props) {
     const { data, setData, put, processing, errors, recentlySuccessful } = useForm({
-        login_max_attempts:              settings.login_max_attempts,
-        lockout_duration_minutes:        settings.lockout_duration_minutes,
-        captcha_after_attempts:          settings.captcha_after_attempts,
-        progressive_lockout_enabled:     settings.progressive_lockout_enabled,
-        session_lifetime_minutes:        settings.session_lifetime_minutes,
-        idle_timeout_minutes:            settings.idle_timeout_minutes,
-        remember_me_max_days:            settings.remember_me_max_days,
+        login_max_attempts: settings.login_max_attempts,
+        lockout_duration_minutes: settings.lockout_duration_minutes,
+        captcha_after_attempts: settings.captcha_after_attempts,
+        progressive_lockout_enabled: settings.progressive_lockout_enabled,
+        session_lifetime_minutes: settings.session_lifetime_minutes,
+        idle_timeout_minutes: settings.idle_timeout_minutes,
+        remember_me_max_days: settings.remember_me_max_days,
         session_invalidate_on_ip_change: settings.session_invalidate_on_ip_change,
         session_invalidate_on_ua_change: settings.session_invalidate_on_ua_change,
-        session_single_device_only:      settings.session_single_device_only,
+        session_single_device_only: settings.session_single_device_only,
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -44,7 +44,7 @@ export default function Sessions({ settings }: Props) {
     };
 
     return (
-        <div className="p-8 space-y-6 max-w-3xl mx-auto w-full">
+        <div className="p-8 space-y-6 max-w-full mx-auto w-full">
             <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Brute Force */}
                 <Card className="border border-border/40 shadow-sm bg-card/60 backdrop-blur-md">
@@ -132,7 +132,7 @@ export default function Sessions({ settings }: Props) {
                             {[
                                 { key: 'session_invalidate_on_ip_change' as const, label: 'Invalidate session if IP address changes' },
                                 { key: 'session_invalidate_on_ua_change' as const, label: 'Invalidate session if browser/device changes' },
-                                { key: 'session_single_device_only'      as const, label: 'Allow only one active session per user' },
+                                { key: 'session_single_device_only' as const, label: 'Allow only one active session per user' },
                             ].map(({ key, label }) => (
                                 <div key={key} className="flex items-center space-x-3 group cursor-pointer">
                                     <Checkbox id={key} checked={data[key]}

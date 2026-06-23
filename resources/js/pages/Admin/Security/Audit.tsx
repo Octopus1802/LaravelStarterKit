@@ -42,10 +42,10 @@ interface Props {
 export default function Audit({ settings, auditLogs }: Props) {
     const { data, setData, put, processing, errors, recentlySuccessful } = useForm({
         audit_log_retention_days: settings.audit_log_retention_days,
-        log_failed_logins:        settings.log_failed_logins,
-        log_permission_changes:   settings.log_permission_changes,
-        notify_admin_on_breach:   settings.notify_admin_on_breach,
-        notify_admin_email:       settings.notify_admin_email ?? '',
+        log_failed_logins: settings.log_failed_logins,
+        log_permission_changes: settings.log_permission_changes,
+        notify_admin_on_breach: settings.notify_admin_on_breach,
+        notify_admin_email: settings.notify_admin_email ?? '',
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -54,7 +54,7 @@ export default function Audit({ settings, auditLogs }: Props) {
     };
 
     return (
-        <div className="p-8 space-y-6 max-w-5xl mx-auto w-full">
+        <div className="p-8 space-y-6 max-w-full mx-auto w-full">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
                 {/* Settings Panel */}
                 <div className="lg:col-span-1 space-y-6">
@@ -76,7 +76,7 @@ export default function Audit({ settings, auditLogs }: Props) {
                                 </div>
 
                                 {[
-                                    { key: 'log_failed_logins'      as const, label: 'Log Failed Login Attempts' },
+                                    { key: 'log_failed_logins' as const, label: 'Log Failed Login Attempts' },
                                     { key: 'log_permission_changes' as const, label: 'Log Role / Permission Changes' },
                                 ].map(({ key, label }) => (
                                     <div key={key} className="flex items-center space-x-3 group cursor-pointer">
@@ -159,11 +159,10 @@ export default function Audit({ settings, auditLogs }: Props) {
                                         return (
                                             <TableRow key={log.id} className="border-border/20 hover:bg-muted/10 text-xs">
                                                 <TableCell>
-                                                    <span className={`font-semibold px-2 py-0.5 rounded border ${
-                                                        isAlert
-                                                            ? 'bg-rose-500/10 border-rose-500/20 text-rose-600 dark:text-rose-400'
-                                                            : 'bg-muted border-border/60 text-foreground'
-                                                    }`}>
+                                                    <span className={`font-semibold px-2 py-0.5 rounded border ${isAlert
+                                                        ? 'bg-rose-500/10 border-rose-500/20 text-rose-600 dark:text-rose-400'
+                                                        : 'bg-muted border-border/60 text-foreground'
+                                                        }`}>
                                                         {log.event}
                                                     </span>
                                                 </TableCell>

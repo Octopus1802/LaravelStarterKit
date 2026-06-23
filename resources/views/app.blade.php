@@ -30,8 +30,17 @@
             }
         </style>
 
-        <link rel="icon" href="/favicon.ico" sizes="any">
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+        @php
+            $branding = \App\Models\BrandingSetting::first();
+            $tabLogoUrl = $branding ? ($branding->getFirstMediaUrl('tab_logo') ?: null) : null;
+        @endphp
+        <meta name="app-name" content="{{ config('app.name') }}">
+        @if($tabLogoUrl)
+            <link rel="icon" href="{{ $tabLogoUrl }}" type="image/any-icon">
+        @else
+            <link rel="icon" href="/favicon.ico" sizes="any">
+            <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+        @endif
         <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
         @fonts

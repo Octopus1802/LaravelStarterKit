@@ -21,11 +21,11 @@ interface Props {
 
 export default function Accounts({ settings }: Props) {
     const { data, setData, put, processing, errors, recentlySuccessful } = useForm({
-        registration_enabled:       settings.registration_enabled,
+        registration_enabled: settings.registration_enabled,
         require_email_verification: settings.require_email_verification,
-        account_inactive_days:      settings.account_inactive_days,
-        allow_self_deletion:        settings.allow_self_deletion,
-        max_users:                  settings.max_users ?? '',
+        account_inactive_days: settings.account_inactive_days,
+        allow_self_deletion: settings.allow_self_deletion,
+        max_users: settings.max_users ?? '',
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -34,7 +34,7 @@ export default function Accounts({ settings }: Props) {
     };
 
     return (
-        <div className="p-8 space-y-6 max-w-3xl mx-auto w-full">
+        <div className="p-8 space-y-6 max-w-full mx-auto w-full">
             <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Registration */}
                 <Card className="border border-border/40 shadow-sm bg-card/60 backdrop-blur-md">
@@ -47,9 +47,9 @@ export default function Accounts({ settings }: Props) {
                     <CardContent className="p-6 space-y-6">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             {[
-                                { key: 'registration_enabled'       as const, label: 'Allow New User Registrations' },
+                                { key: 'registration_enabled' as const, label: 'Allow New User Registrations' },
                                 { key: 'require_email_verification' as const, label: 'Require Email Verification Before Login' },
-                                { key: 'allow_self_deletion'        as const, label: 'Allow Users to Delete Their Own Account' },
+                                { key: 'allow_self_deletion' as const, label: 'Allow Users to Delete Their Own Account' },
                             ].map(({ key, label }) => (
                                 <div key={key} className="flex items-center space-x-3 group cursor-pointer">
                                     <Checkbox id={key} checked={data[key] as boolean}

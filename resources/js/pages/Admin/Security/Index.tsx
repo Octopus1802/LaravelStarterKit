@@ -136,7 +136,7 @@ const sections = [
 
 export default function Index({ settings, auditLogs }: Props) {
     return (
-        <div className="p-8 space-y-8 max-w-6xl mx-auto w-full">
+        <div className="p-8 space-y-8 max-w-full mx-auto w-full">
             {/* Section Overview Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {sections.map((section) => (

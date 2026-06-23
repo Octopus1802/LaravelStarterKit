@@ -36,10 +36,17 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         $user = $request->user();
+        $branding = \App\Models\BrandingSetting::first();
+        $appName = $branding ? $branding->app_name : config('app.name');
 
         return [
             ...parent::share($request),
-            'name' => config('app.name'),
+            'name' => $appName,
+            'branding' => [
+                'app_name'    => $appName,
+                'system_logo' => $branding ? ($branding->getFirstMediaUrl('system_logo') ?: null) : null,
+                'tab_logo'    => $branding ? ($branding->getFirstMediaUrl('tab_logo') ?: null) : null,
+            ],
             'auth' => [
                 'user' => $user ? array_merge($user->toArray(), [
                     // Append the Spatie Media Library avatar URL so the React

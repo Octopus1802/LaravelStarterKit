@@ -23,7 +23,7 @@ class EnforceSecurityPolicies
         $ip = $request->ip();
 
         // 1. Force HTTPS
-        if ($settings->force_https && !$request->secure() && !app()->environment('local')) {
+        if ($settings->force_https && !$request->secure() && !app()->environment('local', 'testing')) {
             return redirect()->secure($request->getRequestUri());
         }
 

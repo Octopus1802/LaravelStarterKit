@@ -1,10 +1,10 @@
-import React from 'react';
 import { useForm } from '@inertiajs/react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Save, CheckCircle, ShieldCheck, RefreshCw } from 'lucide-react';
+import React from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
 
 interface SecuritySettings {
     id: number;
@@ -23,13 +23,13 @@ interface Props {
 
 export default function Password({ settings }: Props) {
     const { data, setData, put, processing, errors, recentlySuccessful } = useForm({
-        password_min_length:        settings.password_min_length,
+        password_min_length: settings.password_min_length,
         password_require_uppercase: settings.password_require_uppercase,
-        password_require_numeric:   settings.password_require_numeric,
-        password_require_special:   settings.password_require_special,
-        password_max_age_days:      settings.password_max_age_days,
-        password_history_count:     settings.password_history_count,
-        password_ban_common:        settings.password_ban_common,
+        password_require_numeric: settings.password_require_numeric,
+        password_require_special: settings.password_require_special,
+        password_max_age_days: settings.password_max_age_days,
+        password_history_count: settings.password_history_count,
+        password_ban_common: settings.password_ban_common,
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -38,7 +38,7 @@ export default function Password({ settings }: Props) {
     };
 
     return (
-        <div className="p-8 space-y-6 max-w-3xl mx-auto w-full">
+        <div className="p-8 space-y-6 max-w-full mx-auto w-full">
             <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Complexity */}
                 <Card className="border border-border/40 shadow-sm bg-card/60 backdrop-blur-md">
@@ -69,9 +69,9 @@ export default function Password({ settings }: Props) {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                             {[
                                 { key: 'password_require_uppercase' as const, label: 'Require Uppercase Letters (A–Z)' },
-                                { key: 'password_require_numeric'   as const, label: 'Require Numbers (0–9)' },
-                                { key: 'password_require_special'   as const, label: 'Require Special Characters (!@#$…)' },
-                                { key: 'password_ban_common'        as const, label: 'Block Known / Breached Passwords' },
+                                { key: 'password_require_numeric' as const, label: 'Require Numbers (0–9)' },
+                                { key: 'password_require_special' as const, label: 'Require Special Characters (!@#$…)' },
+                                { key: 'password_ban_common' as const, label: 'Block Known / Breached Passwords' },
                             ].map(({ key, label }) => (
                                 <div key={key} className="flex items-center space-x-3 group cursor-pointer">
                                     <Checkbox

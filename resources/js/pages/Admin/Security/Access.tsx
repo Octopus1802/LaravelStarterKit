@@ -25,24 +25,24 @@ interface Props {
 }
 
 const MFA_METHODS = [
-    { value: 'totp',    label: 'TOTP Authenticator App' },
+    { value: 'totp', label: 'TOTP Authenticator App' },
     { value: 'passkey', label: 'Passkeys / WebAuthn' },
-    { value: 'email',   label: 'Email OTP' },
-    { value: 'sms',     label: 'SMS OTP' },
+    { value: 'email', label: 'Email OTP' },
+    { value: 'sms', label: 'SMS OTP' },
 ];
 
 export default function Access({ settings }: Props) {
     const { data, setData, put, processing, errors, recentlySuccessful } = useForm({
-        enforce_mfa_admins:     settings.enforce_mfa_admins,
-        enforce_mfa_all_users:  settings.enforce_mfa_all_users,
+        enforce_mfa_admins: settings.enforce_mfa_admins,
+        enforce_mfa_all_users: settings.enforce_mfa_all_users,
         mfa_grace_period_hours: settings.mfa_grace_period_hours,
-        allowed_mfa_methods:    settings.allowed_mfa_methods ?? ['totp', 'passkey'],
-        backup_codes_count:     settings.backup_codes_count,
-        ip_whitelist:           settings.ip_whitelist ?? '',
-        ip_blacklist:           settings.ip_blacklist ?? '',
-        allow_tor_exit_nodes:   settings.allow_tor_exit_nodes,
-        geo_block_countries:    settings.geo_block_countries ?? '',
-        force_https:            settings.force_https,
+        allowed_mfa_methods: settings.allowed_mfa_methods ?? ['totp', 'passkey'],
+        backup_codes_count: settings.backup_codes_count,
+        ip_whitelist: settings.ip_whitelist ?? '',
+        ip_blacklist: settings.ip_blacklist ?? '',
+        allow_tor_exit_nodes: settings.allow_tor_exit_nodes,
+        geo_block_countries: settings.geo_block_countries ?? '',
+        force_https: settings.force_https,
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -59,7 +59,7 @@ export default function Access({ settings }: Props) {
     };
 
     return (
-        <div className="p-8 space-y-6 max-w-3xl mx-auto w-full">
+        <div className="p-8 space-y-6 max-w-full mx-auto w-full">
             <form onSubmit={handleSubmit} className="space-y-6">
                 {/* MFA */}
                 <Card className="border border-border/40 shadow-sm bg-card/60 backdrop-blur-md">
@@ -74,7 +74,7 @@ export default function Access({ settings }: Props) {
                     <CardContent className="p-6 space-y-6">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             {[
-                                { key: 'enforce_mfa_admins'    as const, label: 'Enforce MFA for Admins & Managers' },
+                                { key: 'enforce_mfa_admins' as const, label: 'Enforce MFA for Admins & Managers' },
                                 { key: 'enforce_mfa_all_users' as const, label: 'Enforce MFA for All Users' },
                             ].map(({ key, label }) => (
                                 <div key={key} className="flex items-center space-x-3 group cursor-pointer">
@@ -135,7 +135,7 @@ export default function Access({ settings }: Props) {
                     <CardContent className="p-6 space-y-6">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             {[
-                                { key: 'force_https'          as const, label: 'Force HTTPS (redirect all HTTP to HTTPS)' },
+                                { key: 'force_https' as const, label: 'Force HTTPS (redirect all HTTP to HTTPS)' },
                                 { key: 'allow_tor_exit_nodes' as const, label: 'Allow Tor Exit Nodes' },
                             ].map(({ key, label }) => (
                                 <div key={key} className="flex items-center space-x-3 group cursor-pointer">

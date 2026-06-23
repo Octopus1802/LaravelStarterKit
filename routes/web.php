@@ -26,6 +26,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Security Settings — Unified update with section param
     Route::put('admin/security/{section}', [AdminSecurityController::class, 'update'])->name('admin.security.update');
 
+    // Branding Settings
+    Route::post('admin/branding', [\App\Http\Controllers\Admin\BrandingController::class, 'update'])->name('admin.branding.update');
+    Route::delete('admin/branding/{type}', [\App\Http\Controllers\Admin\BrandingController::class, 'destroy'])->name('admin.branding.destroy');
+
     // Chat System Routes
     Route::get('chat', [\App\Http\Controllers\ChatController::class, 'fallback'])->name('chat.fallback');
     Route::get('chat/{receiver}', [\App\Http\Controllers\ChatController::class, 'index'])->name('chat.index');

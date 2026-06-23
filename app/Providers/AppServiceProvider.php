@@ -25,6 +25,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        try {
+            $branding = \App\Models\BrandingSetting::first();
+            if ($branding && $branding->app_name) {
+                config(['app.name' => $branding->app_name]);
+            }
+        } catch (\Exception $e) {
+            // Revert to default
+        }
+
         $this->configureDefaults();
 
         // Implicitly grant "Super-Admin" role all permissions
