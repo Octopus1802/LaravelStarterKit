@@ -103,13 +103,12 @@ export default function BrandingSettingsForm() {
                 <Form
                     {...BrandingController.update.form()}
                     options={{
-                        forceFormData: true,
                         preserveScroll: true,
-                        onSuccess: () => {
-                            // Reset file inputs
-                            if (systemLogoInputRef.current) systemLogoInputRef.current.value = '';
-                            if (tabLogoInputRef.current) tabLogoInputRef.current.value = '';
-                        },
+                    }}
+                    onSuccess={() => {
+                        // Reset file inputs
+                        if (systemLogoInputRef.current) systemLogoInputRef.current.value = '';
+                        if (tabLogoInputRef.current) tabLogoInputRef.current.value = '';
                     }}
                     className="space-y-6"
                 >

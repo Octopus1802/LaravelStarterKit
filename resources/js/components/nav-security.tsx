@@ -45,6 +45,12 @@ const securitySubItems = [
         href: '/admin/security/audit',
         match: (url: string) => url.startsWith('/admin/security/audit'),
     },
+    {
+        title: 'Performance Logs',
+        href: '/pulse',
+        match: (url: string) => url.startsWith('/pulse'),
+        external: true,
+    },
 ];
 
 export function NavSecurity() {
@@ -86,9 +92,15 @@ export function NavSecurity() {
                                             asChild
                                             isActive={item.match(url)}
                                         >
-                                            <Link href={item.href} prefetch>
-                                                <span>{item.title}</span>
-                                            </Link>
+                                            {item.external ? (
+                                                <a href={item.href} target="_blank" rel="noopener noreferrer">
+                                                    <span>{item.title}</span>
+                                                </a>
+                                            ) : (
+                                                <Link href={item.href} prefetch>
+                                                    <span>{item.title}</span>
+                                                </Link>
+                                            )}
                                         </SidebarMenuSubButton>
                                     </SidebarMenuSubItem>
                                 ))}

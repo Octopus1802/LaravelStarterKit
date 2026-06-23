@@ -9,3 +9,13 @@ declare module '@inertiajs/core' {
         };
     }
 }
+
+export interface ApiToken {
+    id: number;
+    name: string;
+    abilities: string[];
+    last_used_at: string | null;
+    last_used_at_diff: string | null;
+    created_at: string;
+    created_at_diff: string;
+}

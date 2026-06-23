@@ -59,6 +59,9 @@ class HandleInertiaRequests extends Middleware
                 ]) : null,
                 'roles' => $user ? $user->getRoleNames() : [],
                 'permissions' => $user ? $user->getAllPermissions()->pluck('name') : [],
+                'impersonator' => session()->has('impersonator_id')
+                    ? \App\Models\User::find(session('impersonator_id'))
+                    : null,
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];

@@ -16,6 +16,7 @@ export type Auth = {
     user: User;
     roles: string[];
     permissions: string[];
+    impersonator?: User | null;
 };
 
 /* @chisel-passkeys */

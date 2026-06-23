@@ -24,6 +24,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'edit articles',
             'delete records',
             'view dashboard',
+
         ];
 
         foreach ($permissions as $permission) {

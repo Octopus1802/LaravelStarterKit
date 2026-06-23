@@ -1,13 +1,22 @@
 import React, { useState } from 'react';
-import { useForm, usePage } from '@inertiajs/react';
+import { useForm, usePage, router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Users, UserPlus, Trash2, Edit3, Mail, Shield, ShieldCheck, Calendar, Info, X } from 'lucide-react';
+import { Users, UserPlus, Trash2, Edit3, Mail, Shield, ShieldCheck, Calendar, Info, X, LogIn } from 'lucide-react';
 import type { Auth } from '@/types';
 import { Pagination, LinkItem } from '@/components/Pagination';
+import { toast } from 'sonner';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 
 interface Role {
     id: number;
@@ -47,6 +56,30 @@ const getAvatarStyle = (name: string) => {
 export default function Index({ users, roles }: Props) {
     const { auth } = usePage<{ auth: Auth }>().props;
     const [editingUser, setEditingUser] = useState<User | null>(null);
+
+    const [impersonateTargetUser, setImpersonateTargetUser] = useState<User | null>(null);
+    const canImpersonate = auth?.roles?.some((r) => ['Super-Admin', 'Developer'].includes(r));
+
+    const handleImpersonate = (user: User) => {
+        setImpersonateTargetUser(user);
+    };
+
+    const confirmImpersonate = () => {
+        if (!impersonateTargetUser) return;
+
+        toast.info(`Initializing impersonation for ${impersonateTargetUser.name}...`);
+
+        router.post(`/admin/impersonate/${impersonateTargetUser.id}`, {}, {
+            onSuccess: () => {
+                toast.success(`Successfully logged in as ${impersonateTargetUser.name}`);
+                setImpersonateTargetUser(null);
+            },
+            onError: () => {
+                toast.error('Failed to log in as user.');
+                setImpersonateTargetUser(null);
+            }
+        });
+    };
 
     const { data, setData, post, put, delete: destroy, reset, processing, errors } = useForm({
         name: '',
@@ -223,6 +256,17 @@ export default function Index({ users, roles }: Props) {
                                                 </TableCell>
                                                 <TableCell className="text-right pr-6 py-4">
                                                     <div className="flex items-center justify-end gap-1.5">
+                                                        {canImpersonate && auth?.user?.id !== user.id && !user.roles.some((r) => ['Super-Admin', 'Developer'].includes(r.name)) && (
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                onClick={() => handleImpersonate(user)}
+                                                                className="h-8 w-8 hover:bg-amber-500/10 text-muted-foreground hover:text-amber-500 rounded-lg"
+                                                                title="Login As User"
+                                                            >
+                                                                <LogIn className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                                                            </Button>
+                                                        )}
                                                         <Button
                                                             variant="ghost"
                                                             size="icon"
@@ -361,6 +405,39 @@ export default function Index({ users, roles }: Props) {
                         </CardContent>
                     </Card>
                 </div>
+            {/* Impersonation Confirmation Modal */}
+            <Dialog open={impersonateTargetUser !== null} onOpenChange={(open) => !open && setImpersonateTargetUser(null)}>
+                <DialogContent className="sm:max-w-md border border-border/40 shadow-lg bg-card/90 backdrop-blur-md">
+                    <DialogHeader className="flex flex-col items-center sm:items-start">
+                        <DialogTitle className="flex items-center gap-2.5 text-lg font-bold text-foreground">
+                            <LogIn className="h-5 w-5 text-amber-500 animate-pulse" />
+                            Confirm User Impersonation
+                        </DialogTitle>
+                        <DialogDescription className="text-sm text-muted-foreground mt-2 text-center sm:text-left">
+                            You are about to log in as <strong className="text-foreground">{impersonateTargetUser?.name}</strong> (<span className="text-foreground/80 font-mono text-xs">{impersonateTargetUser?.email}</span>). 
+                            This action is fully audited. Do you want to proceed?
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2.5 mt-4">
+                        <Button 
+                            variant="ghost" 
+                            type="button"
+                            onClick={() => setImpersonateTargetUser(null)}
+                            className="h-10 hover:bg-muted border border-border/40 rounded-lg"
+                        >
+                            Cancel
+                        </Button>
+                        <Button 
+                            type="button"
+                            onClick={confirmImpersonate}
+                            className="h-10 px-5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-semibold flex items-center gap-1.5 shadow-sm active:scale-[0.98] transition-all"
+                        >
+                            <LogIn className="h-4 w-4" />
+                            Proceed to Login
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
             </div>
         </div>
     );
