@@ -3,18 +3,35 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Services\AuditLogger;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $search = trim($request->query('search', ''));
+
+        $query = User::with('roles');
+
+        if (! empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
         return Inertia::render('Admin/Users/Index', [
-            'users' => User::with('roles')->paginate(10)->withQueryString(),
+            'users' => $query->paginate(10)->withQueryString(),
             'roles' => Role::all(),
         ]);
+    }
+
+    public function show(User $user)
+    {
+        return redirect()->route('users.index', ['search' => $user->email]);
     }
 
     public function store(Request $request)
@@ -36,7 +53,7 @@ class UserController extends Controller
             $user->assignRole($request->roles);
         }
 
-        \App\Services\AuditLogger::log('User Account Registered', "User account \"{$user->email}\" was created by admin with roles: " . implode(', ', $request->roles ?? []) . ".", $user->id, $user->email);
+        AuditLogger::log('User Account Registered', "User account \"{$user->email}\" was created by admin with roles: ".implode(', ', $request->roles ?? []).'.', $user->id, $user->email);
 
         return back()->with('message', 'User created successfully.');
     }
@@ -45,7 +62,7 @@ class UserController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'email' => 'required|string|email|max:255|unique:users,email,'.$user->id,
             'password' => 'nullable|string|min:8',
             'roles' => 'array',
         ]);
@@ -63,7 +80,7 @@ class UserController extends Controller
 
         if ($request->has('roles')) {
             // Guard: ensure we don't accidentally remove Super-Admin from the last Super-Admin user
-            if ($user->hasRole('Super-Admin') && !in_array('Super-Admin', $request->roles)) {
+            if ($user->hasRole('Super-Admin') && ! in_array('Super-Admin', $request->roles)) {
                 $superAdminCount = User::role('Super-Admin')->count();
                 if ($superAdminCount <= 1) {
                     return back()->with('error', 'Cannot remove Super-Admin role from the only remaining Super-Admin user.');
@@ -73,7 +90,7 @@ class UserController extends Controller
             $user->syncRoles($request->roles);
         }
 
-        \App\Services\AuditLogger::log('User Role Assigned', "User account \"{$user->email}\" was updated. Roles synced to: " . implode(', ', $request->roles ?? []) . ".", $user->id, $user->email);
+        AuditLogger::log('User Role Assigned', "User account \"{$user->email}\" was updated. Roles synced to: ".implode(', ', $request->roles ?? []).'.', $user->id, $user->email);
 
         return back()->with('message', 'User updated successfully.');
     }
@@ -93,7 +110,7 @@ class UserController extends Controller
             }
         }
 
-        \App\Services\AuditLogger::log('User Deleted', "User account \"{$user->email}\" was deleted.", $user->id, $user->email);
+        AuditLogger::log('User Deleted', "User account \"{$user->email}\" was deleted.", $user->id, $user->email);
 
         $user->delete();
 

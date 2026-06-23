@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
+use App\Models\SecuritySetting;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -68,7 +69,8 @@ class FortifyServiceProvider extends ServiceProvider
         ]));
 
         Fortify::registerView(function () {
-            $settings = \App\Models\SecuritySetting::firstOrCreate([]);
+            $settings = SecuritySetting::firstOrCreate([]);
+
             return Inertia::render('auth/register', [
                 'passwordRules' => Password::defaults()->toPasswordRulesString(),
                 'registrationEnabled' => $settings->registration_enabled,
@@ -93,7 +95,7 @@ class FortifyServiceProvider extends ServiceProvider
             $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())).'|'.$request->ip());
 
             try {
-                $settings = \App\Models\SecuritySetting::firstOrCreate([]);
+                $settings = SecuritySetting::firstOrCreate([]);
                 $maxAttempts = (int) $settings->login_max_attempts;
                 $duration = (int) $settings->lockout_duration_minutes;
 

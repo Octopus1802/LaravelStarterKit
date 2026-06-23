@@ -2,7 +2,16 @@
 
 namespace App\Providers;
 
+use App\Models\BrandingSetting;
+use App\Models\SecuritySetting;
+use App\Services\AuditLogger;
 use Carbon\CarbonImmutable;
+use Illuminate\Auth\Events\Failed;
+use Illuminate\Auth\Events\Login;
+use Illuminate\Auth\Events\Logout;
+use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
@@ -26,7 +35,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         try {
-            $branding = \App\Models\BrandingSetting::first();
+            $branding = BrandingSetting::first();
             if ($branding && $branding->app_name) {
                 config(['app.name' => $branding->app_name]);
             }
@@ -68,10 +77,10 @@ class AppServiceProvider extends ServiceProvider
         }
 
         try {
-            $settings = \App\Models\SecuritySetting::firstOrCreate([]);
-            
+            $settings = SecuritySetting::firstOrCreate([]);
+
             $rule = Password::min($settings->password_min_length);
-            
+
             if ($settings->password_require_uppercase) {
                 $rule->mixedCase();
             }
@@ -84,7 +93,7 @@ class AppServiceProvider extends ServiceProvider
             if ($settings->password_ban_common) {
                 $rule->uncompromised();
             }
-            
+
             return $rule;
         } catch (\Exception $e) {
             return Password::min(12)->mixedCase()->numbers()->symbols();
@@ -96,28 +105,28 @@ class AppServiceProvider extends ServiceProvider
      */
     protected function registerSecurityListeners(): void
     {
-        Event::listen(\Illuminate\Auth\Events\Login::class, function ($event) {
-            \Illuminate\Support\Facades\Cache::put("user_session_" . $event->user->id, session()->getId(), 86400);
-            \App\Services\AuditLogger::log('Successful Login', 'User logged in successfully.', $event->user->id, $event->user->email);
+        Event::listen(Login::class, function ($event) {
+            Cache::put('user_session_'.$event->user->id, session()->getId(), 86400);
+            AuditLogger::log('Successful Login', 'User logged in successfully.', $event->user->id, $event->user->email);
         });
 
-        Event::listen(\Illuminate\Auth\Events\Failed::class, function ($event) {
+        Event::listen(Failed::class, function ($event) {
             $email = $event->credentials['email'] ?? ($event->credentials['username'] ?? 'unknown');
-            \App\Services\AuditLogger::log('Failed Login Attempt', "Incorrect credentials entered for user: $email.", $event->user?->id, $email);
+            AuditLogger::log('Failed Login Attempt', "Incorrect credentials entered for user: $email.", $event->user?->id, $email);
         });
 
-        Event::listen(\Illuminate\Auth\Events\Logout::class, function ($event) {
+        Event::listen(Logout::class, function ($event) {
             if ($event->user) {
-                \App\Services\AuditLogger::log('User Logout', 'User logged out.', $event->user->id, $event->user->email);
+                AuditLogger::log('User Logout', 'User logged out.', $event->user->id, $event->user->email);
             }
         });
 
-        Event::listen(\Illuminate\Auth\Events\Registered::class, function ($event) {
-            \App\Services\AuditLogger::log('User Account Registered', 'User registered a new account.', $event->user->id, $event->user->email);
+        Event::listen(Registered::class, function ($event) {
+            AuditLogger::log('User Account Registered', 'User registered a new account.', $event->user->id, $event->user->email);
         });
 
-        Event::listen(\Illuminate\Auth\Events\PasswordReset::class, function ($event) {
-            \App\Services\AuditLogger::log('Password Reset', 'User reset their password.', $event->user->id, $event->user->email);
+        Event::listen(PasswordReset::class, function ($event) {
+            AuditLogger::log('Password Reset', 'User reset their password.', $event->user->id, $event->user->email);
         });
     }
 }

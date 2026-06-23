@@ -10,7 +10,7 @@ export default function AppSidebarLayout({
     breadcrumbs = [],
 }: AppLayoutProps) {
     return (
-        <div className="flex flex-col min-h-screen w-full">
+        <div className="flex min-h-screen w-full flex-col">
             <ImpersonationBanner />
             <AppShell variant="sidebar">
                 <AppSidebar />

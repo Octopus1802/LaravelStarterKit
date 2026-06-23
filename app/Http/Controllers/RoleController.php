@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\AuditLogger;
 use Illuminate\Http\Request;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
 use Inertia\Inertia;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class RoleController extends Controller
 {
@@ -23,7 +24,7 @@ class RoleController extends Controller
         $role = Role::create(['name' => $request->name]);
         $role->syncPermissions($request->permissions ?? []);
 
-        \App\Services\AuditLogger::log('Role Created', "Role \"{$role->name}\" was created.");
+        AuditLogger::log('Role Created', "Role \"{$role->name}\" was created.");
 
         return back()->with('message', 'Role created successfully.');
     }
@@ -34,11 +35,11 @@ class RoleController extends Controller
             return back()->with('error', 'The Super-Admin role cannot be modified.');
         }
 
-        $request->validate(['name' => 'required|string|unique:roles,name,' . $role->id]);
+        $request->validate(['name' => 'required|string|unique:roles,name,'.$role->id]);
         $role->update(['name' => $request->name]);
         $role->syncPermissions($request->permissions ?? []);
 
-        \App\Services\AuditLogger::log('Role Permissions Updated', "Permissions for role \"{$role->name}\" were updated.");
+        AuditLogger::log('Role Permissions Updated', "Permissions for role \"{$role->name}\" were updated.");
 
         return back()->with('message', 'Role updated successfully.');
     }
@@ -49,9 +50,10 @@ class RoleController extends Controller
             return back()->with('error', 'The Super-Admin role cannot be deleted.');
         }
 
-        \App\Services\AuditLogger::log('Role Deleted', "Role \"{$role->name}\" was deleted.");
+        AuditLogger::log('Role Deleted', "Role \"{$role->name}\" was deleted.");
 
         $role->delete();
+
         return back()->with('message', 'Role deleted successfully.');
     }
 }

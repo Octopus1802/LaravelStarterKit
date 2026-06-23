@@ -52,7 +52,7 @@ class ApiTokenController extends Controller
 
         Inertia::flash('toast', [
             'type' => 'success',
-            'message' => __('API Token generated successfully.')
+            'message' => __('API Token generated successfully.'),
         ]);
 
         return back()->with('plainTextToken', $token->plainTextToken);
@@ -64,12 +64,12 @@ class ApiTokenController extends Controller
     public function destroy(Request $request, int $tokenId): RedirectResponse
     {
         $token = $request->user()->tokens()->findOrFail($tokenId);
-        
+
         $token->delete();
 
         Inertia::flash('toast', [
             'type' => 'success',
-            'message' => __('API Token revoked successfully.')
+            'message' => __('API Token revoked successfully.'),
         ]);
 
         return back();

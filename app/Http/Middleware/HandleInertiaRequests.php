@@ -2,6 +2,8 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\BrandingSetting;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -36,16 +38,16 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         $user = $request->user();
-        $branding = \App\Models\BrandingSetting::first();
+        $branding = BrandingSetting::first();
         $appName = $branding ? $branding->app_name : config('app.name');
 
         return [
             ...parent::share($request),
             'name' => $appName,
             'branding' => [
-                'app_name'    => $appName,
+                'app_name' => $appName,
                 'system_logo' => $branding ? ($branding->getFirstMediaUrl('system_logo') ?: null) : null,
-                'tab_logo'    => $branding ? ($branding->getFirstMediaUrl('tab_logo') ?: null) : null,
+                'tab_logo' => $branding ? ($branding->getFirstMediaUrl('tab_logo') ?: null) : null,
             ],
             'auth' => [
                 'user' => $user ? array_merge($user->toArray(), [
@@ -60,7 +62,7 @@ class HandleInertiaRequests extends Middleware
                 'roles' => $user ? $user->getRoleNames() : [],
                 'permissions' => $user ? $user->getAllPermissions()->pluck('name') : [],
                 'impersonator' => session()->has('impersonator_id')
-                    ? \App\Models\User::find(session('impersonator_id'))
+                    ? User::find(session('impersonator_id'))
                     : null,
                 'unread_notifications' => $user ? $user->unreadNotifications()->take(5)->get() : [],
             ],

@@ -1,7 +1,11 @@
 import { Link, usePage } from '@inertiajs/react';
 import { ChevronRight, Shield } from 'lucide-react';
 import React from 'react';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import {
     SidebarGroup,
     SidebarGroupLabel,
@@ -93,7 +97,11 @@ export function NavSecurity() {
                                             isActive={item.match(url)}
                                         >
                                             {item.external ? (
-                                                <a href={item.href} target="_blank" rel="noopener noreferrer">
+                                                <a
+                                                    href={item.href}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                >
                                                     <span>{item.title}</span>
                                                 </a>
                                             ) : (

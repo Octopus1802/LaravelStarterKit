@@ -6,7 +6,11 @@ interface AppLogoDynamicProps extends React.ImgHTMLAttributes<HTMLImageElement> 
     iconClassName?: string;
 }
 
-export default function AppLogoDynamic({ iconClassName, className, ...props }: AppLogoDynamicProps) {
+export default function AppLogoDynamic({
+    iconClassName,
+    className,
+    ...props
+}: AppLogoDynamicProps) {
     const { branding } = usePage().props as any;
     const systemLogo = branding?.system_logo;
 
@@ -21,9 +25,5 @@ export default function AppLogoDynamic({ iconClassName, className, ...props }: A
         );
     }
 
-    return (
-        <AppLogoIcon
-            className={cn(iconClassName || className)}
-        />
-    );
+    return <AppLogoIcon className={cn(iconClassName || className)} />;
 }

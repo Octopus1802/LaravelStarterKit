@@ -2,13 +2,13 @@
 
 namespace App\Http\Middleware;
 
-use Closure;
-use Illuminate\Http\Request;
 use App\Models\SecuritySetting;
 use App\Models\User;
 use App\Services\AuditLogger;
+use Closure;
+use Illuminate\Database\QueryException;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Route;
 
 class EnforceSecurityPolicies
 {
@@ -16,14 +16,14 @@ class EnforceSecurityPolicies
     {
         try {
             $settings = SecuritySetting::firstOrCreate([]);
-        } catch (\Illuminate\Database\QueryException $e) {
-            $settings = new SecuritySetting();
+        } catch (QueryException $e) {
+            $settings = new SecuritySetting;
         }
 
         $ip = $request->ip();
 
         // 1. Force HTTPS
-        if ($settings->force_https && !$request->secure() && !app()->environment('local', 'testing')) {
+        if ($settings->force_https && ! $request->secure() && ! app()->environment('local', 'testing')) {
             return redirect()->secure($request->getRequestUri());
         }
 
@@ -48,14 +48,14 @@ class EnforceSecurityPolicies
                     break;
                 }
             }
-            if (!$allowed) {
+            if (! $allowed) {
                 AuditLogger::log('Suspicious Request Blocked', "Request from non-whitelisted IP address {$ip} was blocked.");
                 abort(403, 'Access Denied: Your IP address is not whitelisted.');
             }
         }
 
         // 4. Tor Exit Node Check
-        if (!$settings->allow_tor_exit_nodes) {
+        if (! $settings->allow_tor_exit_nodes) {
             if ($this->isTorExitNode($ip)) {
                 AuditLogger::log('Suspicious Request Blocked', "Request from Tor exit node {$ip} was blocked.");
                 abort(403, 'Access Denied: Tor exit nodes are not allowed.');
@@ -65,13 +65,14 @@ class EnforceSecurityPolicies
         // 5. Geo-Blocking Check
         if ($settings->geo_block_countries) {
             $blockedCountries = array_filter(array_map('trim', array_map('strtoupper', explode(',', $settings->geo_block_countries))));
-            if (!empty($blockedCountries)) {
+            if (! empty($blockedCountries)) {
                 $countryCode = $request->header('CF-IPCountry') ?: $request->server('HTTP_CF_IPCOUNTRY');
-                if (!$countryCode && !in_array($ip, ['127.0.0.1', '::1'])) {
+                if (! $countryCode && ! in_array($ip, ['127.0.0.1', '::1'])) {
                     $countryCode = Cache::remember("ip_country_{$ip}", 86400, function () use ($ip) {
                         try {
                             $response = file_get_contents("http://ip-api.com/json/{$ip}?fields=status,countryCode");
                             $data = json_decode($response, true);
+
                             return ($data && $data['status'] === 'success') ? strtoupper($data['countryCode']) : null;
                         } catch (\Exception $e) {
                             return null;
@@ -87,7 +88,7 @@ class EnforceSecurityPolicies
 
         // 6. Registration Settings Check
         if ($request->is('register') || $request->routeIs('register')) {
-            if (!$settings->registration_enabled) {
+            if (! $settings->registration_enabled) {
                 return redirect()->route('login')->with('error', 'New registrations are currently disabled.');
             }
             if ($settings->max_users && User::count() >= $settings->max_users) {
@@ -107,6 +108,7 @@ class EnforceSecurityPolicies
                     auth()->logout();
                     session()->invalidate();
                     session()->regenerateToken();
+
                     return redirect()->route('login')->with('error', 'Your session has expired due to inactivity.');
                 }
                 session(['last_activity_time' => time()]);
@@ -119,9 +121,10 @@ class EnforceSecurityPolicies
                     auth()->logout();
                     session()->invalidate();
                     session()->regenerateToken();
+
                     return redirect()->route('login')->with('error', 'Session terminated due to IP address change.');
                 }
-                if (!$storedIp) {
+                if (! $storedIp) {
                     session(['user_ip' => $ip]);
                 }
             }
@@ -133,9 +136,10 @@ class EnforceSecurityPolicies
                     auth()->logout();
                     session()->invalidate();
                     session()->regenerateToken();
+
                     return redirect()->route('login')->with('error', 'Session terminated due to device/browser change.');
                 }
-                if (!$storedUa) {
+                if (! $storedUa) {
                     session(['user_agent' => $currentUa]);
                 }
             }
@@ -144,14 +148,15 @@ class EnforceSecurityPolicies
             if ($settings->session_single_device_only) {
                 $currentSessionId = session()->getId();
                 $activeSessionId = Cache::get("user_session_{$user->id}");
-                
+
                 // If there's no active session in cache, set it.
-                if (!$activeSessionId) {
+                if (! $activeSessionId) {
                     Cache::put("user_session_{$user->id}", $currentSessionId, 86400);
                 } elseif ($activeSessionId !== $currentSessionId) {
                     auth()->logout();
                     session()->invalidate();
                     session()->regenerateToken();
+
                     return redirect()->route('login')->with('error', 'Your account has been logged in on another device.');
                 }
             }
@@ -178,8 +183,8 @@ class EnforceSecurityPolicies
                 ];
 
                 $currentRouteName = $request->route()?->getName();
-                
-                if (!in_array($currentRouteName, $allowedRoutes) && !$request->is('logout') && !$request->is('two-factor/*')) {
+
+                if (! in_array($currentRouteName, $allowedRoutes) && ! $request->is('logout') && ! $request->is('two-factor/*')) {
                     return redirect()->route('security.edit')->with('error', 'Multi-Factor Authentication is required by policy. Please enable it to proceed.');
                 }
             }
@@ -190,24 +195,27 @@ class EnforceSecurityPolicies
 
     private function parseIpList(?string $list): array
     {
-        if (!$list) {
+        if (! $list) {
             return [];
         }
+
         return array_filter(array_map('trim', preg_split('/[\s,]+/', $list)));
     }
 
     private function ipMatchesRange(string $ip, string $range): bool
     {
         if (str_contains($range, '/')) {
-            list($subnet, $bits) = explode('/', $range);
+            [$subnet, $bits] = explode('/', $range);
             $ip_dec = ip2long($ip);
             $subnet_dec = ip2long($subnet);
             if ($ip_dec === false || $subnet_dec === false) {
                 return false;
             }
-            $mask = ~((1 << (32 - (int)$bits)) - 1);
+            $mask = ~((1 << (32 - (int) $bits)) - 1);
+
             return ($ip_dec & $mask) === ($subnet_dec & $mask);
         }
+
         return $ip === $range;
     }
 
@@ -222,12 +230,12 @@ class EnforceSecurityPolicies
             $serverIp = request()->server('SERVER_ADDR') ?: '127.0.0.1';
             $serverIpParts = explode('.', $serverIp);
             $reverseServerIp = count($serverIpParts) === 4 ? implode('.', array_reverse($serverIpParts)) : '1.0.0.127';
-            
+
             $query = "{$reverseIp}.80.{$reverseServerIp}.ip-port.exitlist.torproject.org";
-            
+
             try {
                 $records = dns_get_record($query, DNS_A);
-                if (!empty($records)) {
+                if (! empty($records)) {
                     foreach ($records as $record) {
                         if ($record['ip'] === '127.0.0.2') {
                             return true;
@@ -237,6 +245,7 @@ class EnforceSecurityPolicies
             } catch (\Exception $e) {
                 // Fail gracefully
             }
+
             return false;
         });
     }

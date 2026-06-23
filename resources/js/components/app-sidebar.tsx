@@ -1,5 +1,13 @@
 import { Link, router } from '@inertiajs/react';
-import { BookOpen, FolderGit2, LayoutGrid, LogOut, MessageSquare, ShieldAlert, Users } from 'lucide-react';
+import {
+    BookOpen,
+    FolderGit2,
+    LayoutGrid,
+    LogOut,
+    MessageSquare,
+    ShieldAlert,
+    Users,
+} from 'lucide-react';
 import { useMobileNavigation } from '@/hooks/use-mobile-navigation';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
@@ -111,7 +119,7 @@ export function AppSidebar() {
                     <SidebarMenuItem>
                         <SidebarMenuButton
                             asChild
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-950/30"
+                            className="text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950/30 dark:hover:text-red-300"
                         >
                             <Link
                                 href={logout()}

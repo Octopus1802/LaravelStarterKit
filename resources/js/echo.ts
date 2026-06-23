@@ -8,7 +8,9 @@ if (typeof window !== 'undefined') {
     // Determine connections properties from Vite environments
     const scheme = import.meta.env.VITE_REVERB_SCHEME || 'http';
     const host = import.meta.env.VITE_REVERB_HOST || '127.0.0.1';
-    const port = import.meta.env.VITE_REVERB_PORT ? parseInt(import.meta.env.VITE_REVERB_PORT, 10) : 8080;
+    const port = import.meta.env.VITE_REVERB_PORT
+        ? parseInt(import.meta.env.VITE_REVERB_PORT, 10)
+        : 8080;
     const isSecure = scheme === 'https';
 
     window.Echo = new Echo({

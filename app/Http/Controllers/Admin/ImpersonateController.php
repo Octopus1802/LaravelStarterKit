@@ -16,7 +16,7 @@ class ImpersonateController extends Controller
     public function impersonate(Request $request, User $user)
     {
         // 1. Authorize: Ensure the current authenticated user has permission
-        if (!$request->user()->hasAnyRole(['Super-Admin', 'Developer'])) {
+        if (! $request->user()->hasAnyRole(['Super-Admin', 'Developer'])) {
             abort(403, 'Unauthorized. Only Super-Admins or Developers can impersonate.');
         }
 
@@ -53,7 +53,7 @@ class ImpersonateController extends Controller
     public function leave(Request $request)
     {
         // 1. Ensure we are actually impersonating
-        if (!session()->has('impersonator_id')) {
+        if (! session()->has('impersonator_id')) {
             abort(403, 'No impersonation session active.');
         }
 
@@ -61,7 +61,7 @@ class ImpersonateController extends Controller
         $originalId = session()->pull('impersonator_id');
         $originalUser = User::find($originalId);
 
-        if (!$originalUser) {
+        if (! $originalUser) {
             abort(404, 'Original admin user not found.');
         }
 
@@ -74,6 +74,6 @@ class ImpersonateController extends Controller
         // 4. Switch session back to original admin
         Auth::loginUsingId($originalUser->id);
 
-        return redirect()->route('users.index')->with('message', "Returned to your administrator account.");
+        return redirect()->route('users.index')->with('message', 'Returned to your administrator account.');
     }
 }

@@ -26,11 +26,11 @@ class ChatController extends Controller
         $messages = Message::query()
             ->where(function ($query) use ($authId, $receiver) {
                 $query->where('sender_id', $authId)
-                      ->where('receiver_id', $receiver->id);
+                    ->where('receiver_id', $receiver->id);
             })
             ->orWhere(function ($query) use ($authId, $receiver) {
                 $query->where('sender_id', $receiver->id)
-                      ->where('receiver_id', $authId);
+                    ->where('receiver_id', $authId);
             })
             ->with(['sender', 'receiver'])
             ->orderBy('created_at', 'asc')

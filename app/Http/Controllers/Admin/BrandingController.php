@@ -7,7 +7,6 @@ use App\Http\Requests\Settings\BrandingUpdateRequest;
 use App\Models\BrandingSetting;
 use App\Services\AuditLogger;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
 
 class BrandingController extends Controller
 {
@@ -20,7 +19,7 @@ class BrandingController extends Controller
 
         $branding = BrandingSetting::firstOrCreate([]);
         $oldAppName = $branding->app_name;
-        
+
         $branding->update([
             'app_name' => $validated['app_name'],
         ]);
@@ -32,18 +31,18 @@ class BrandingController extends Controller
 
         if ($request->hasFile('system_logo')) {
             $branding->addMediaFromRequest('system_logo')->toMediaCollection('system_logo');
-            $changes[] = "System logo updated";
+            $changes[] = 'System logo updated';
         }
 
         if ($request->hasFile('tab_logo')) {
             $branding->addMediaFromRequest('tab_logo')->toMediaCollection('tab_logo');
-            $changes[] = "Tab favicon updated";
+            $changes[] = 'Tab favicon updated';
         }
 
-        if (!empty($changes)) {
+        if (! empty($changes)) {
             AuditLogger::log(
                 'Branding Settings Updated',
-                'System branding was updated: ' . implode(', ', $changes) . '.'
+                'System branding was updated: '.implode(', ', $changes).'.'
             );
         }
 
@@ -56,18 +55,18 @@ class BrandingController extends Controller
     public function destroy(Request $request, string $type)
     {
         // Enforce Super-Admin authorization on backend
-        if (!auth()->user()->hasRole('Super-Admin')) {
+        if (! auth()->user()->hasRole('Super-Admin')) {
             abort(403, 'Unauthorized.');
         }
 
-        if (!in_array($type, ['system_logo', 'tab_logo'])) {
+        if (! in_array($type, ['system_logo', 'tab_logo'])) {
             abort(400, 'Invalid asset type.');
         }
 
         $branding = BrandingSetting::first();
         if ($branding) {
             $branding->clearMediaCollection($type);
-            
+
             $label = $type === 'system_logo' ? 'System logo' : 'Tab favicon';
             AuditLogger::log('Branding Asset Removed', "{$label} was reverted to default.");
         }

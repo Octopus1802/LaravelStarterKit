@@ -6,13 +6,41 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+    Card,
+    CardHeader,
+    CardTitle,
+    CardDescription,
+    CardContent,
+    CardFooter,
+} from '@/components/ui/card';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Key, Copy, Check, Trash2, ShieldAlert, KeyRound, Clock, Calendar, Plus } from 'lucide-react';
+import {
+    Key,
+    Copy,
+    Check,
+    Trash2,
+    ShieldAlert,
+    KeyRound,
+    Clock,
+    Calendar,
+    Plus,
+} from 'lucide-react';
 import type { ApiToken } from '@/types';
-import { store as storeRoute, destroy as destroyRoute, index as apiTokensIndex } from '@/routes/api-tokens';
+import {
+    store as storeRoute,
+    destroy as destroyRoute,
+    index as apiTokensIndex,
+} from '@/routes/api-tokens';
 
 interface Props {
     tokens: ApiToken[];
@@ -20,9 +48,21 @@ interface Props {
 }
 
 const AVAILABLE_ABILITIES = [
-    { id: 'read', label: 'Read Access', description: 'Allows viewing and fetching resources.' },
-    { id: 'write', label: 'Write Access', description: 'Allows creating and updating resources.' },
-    { id: 'delete', label: 'Delete Access', description: 'Allows removing resources.' },
+    {
+        id: 'read',
+        label: 'Read Access',
+        description: 'Allows viewing and fetching resources.',
+    },
+    {
+        id: 'write',
+        label: 'Write Access',
+        description: 'Allows creating and updating resources.',
+    },
+    {
+        id: 'delete',
+        label: 'Delete Access',
+        description: 'Allows removing resources.',
+    },
 ];
 
 export default function ApiTokensIndex({ tokens, plainTextToken }: Props) {
@@ -38,7 +78,10 @@ export default function ApiTokensIndex({ tokens, plainTextToken }: Props) {
         if (checked) {
             setData('abilities', [...data.abilities, ability]);
         } else {
-            setData('abilities', data.abilities.filter((a) => a !== ability));
+            setData(
+                'abilities',
+                data.abilities.filter((a) => a !== ability),
+            );
         }
     };
 
@@ -59,7 +102,11 @@ export default function ApiTokensIndex({ tokens, plainTextToken }: Props) {
     };
 
     const revokeToken = (tokenId: number) => {
-        if (confirm('Are you sure you want to revoke this API token? It will be permanently deleted.')) {
+        if (
+            confirm(
+                'Are you sure you want to revoke this API token? It will be permanently deleted.',
+            )
+        ) {
             setRevokingId(tokenId);
             router.delete(destroyRoute(tokenId).url, {
                 preserveScroll: true,
@@ -82,27 +129,35 @@ export default function ApiTokensIndex({ tokens, plainTextToken }: Props) {
                 />
 
                 {plainTextToken && (
-                    <Alert className="border-red-500/50 bg-red-500/5 dark:bg-red-500/10 text-red-700 dark:text-red-400">
+                    <Alert className="border-red-500/50 bg-red-500/5 text-red-700 dark:bg-red-500/10 dark:text-red-400">
                         <ShieldAlert className="h-5 w-5 text-red-600 dark:text-red-500" />
                         <div className="flex-1 space-y-2">
                             <AlertTitle className="flex items-center gap-2 font-bold">
                                 New Token Generated
-                                <Badge variant="destructive" className="bg-red-600 hover:bg-red-600/90">
+                                <Badge
+                                    variant="destructive"
+                                    className="bg-red-600 hover:bg-red-600/90"
+                                >
                                     Copy Now
                                 </Badge>
                             </AlertTitle>
                             <AlertDescription className="text-sm font-medium">
                                 <p className="mb-3 text-muted-foreground">
-                                    For security, this token will only be shown once. Copy it now.
+                                    For security, this token will only be shown
+                                    once. Copy it now.
                                 </p>
-                                <div className="flex items-center gap-2 rounded-lg border border-dashed border-red-300 dark:border-red-800 bg-neutral-100 dark:bg-neutral-900 p-3 font-mono text-sm break-all text-neutral-900 dark:text-neutral-100 select-all">
-                                    <span className="flex-1 select-all">{plainTextToken}</span>
+                                <div className="flex items-center gap-2 rounded-lg border border-dashed border-red-300 bg-neutral-100 p-3 font-mono text-sm break-all text-neutral-900 select-all dark:border-red-800 dark:bg-neutral-900 dark:text-neutral-100">
+                                    <span className="flex-1 select-all">
+                                        {plainTextToken}
+                                    </span>
                                     <Button
                                         type="button"
                                         variant="secondary"
                                         size="sm"
                                         className="shrink-0"
-                                        onClick={() => copyToClipboard(plainTextToken)}
+                                        onClick={() =>
+                                            copyToClipboard(plainTextToken)
+                                        }
                                     >
                                         {copied ? (
                                             <>
@@ -129,7 +184,8 @@ export default function ApiTokensIndex({ tokens, plainTextToken }: Props) {
                             Create API Token
                         </CardTitle>
                         <CardDescription>
-                            Generate a new personal access token to authorize API requests.
+                            Generate a new personal access token to authorize
+                            API requests.
                         </CardDescription>
                     </CardHeader>
                     <form onSubmit={submit}>
@@ -143,7 +199,9 @@ export default function ApiTokensIndex({ tokens, plainTextToken }: Props) {
                                     required
                                     placeholder="e.g., Development Server, GitHub Actions"
                                     value={data.name}
-                                    onChange={(e) => setData('name', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('name', e.target.value)
+                                    }
                                 />
                                 <InputError message={errors.name} />
                             </div>
@@ -152,15 +210,28 @@ export default function ApiTokensIndex({ tokens, plainTextToken }: Props) {
                                 <Label>API Scopes / Permissions</Label>
                                 <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-1">
                                     {AVAILABLE_ABILITIES.map((ability) => (
-                                        <div key={ability.id} className="flex items-start gap-3 rounded-lg border p-3 hover:bg-muted/50 transition-colors">
+                                        <div
+                                            key={ability.id}
+                                            className="flex items-start gap-3 rounded-lg border p-3 transition-colors hover:bg-muted/50"
+                                        >
                                             <Checkbox
                                                 id={`ability-${ability.id}`}
-                                                checked={data.abilities.includes(ability.id)}
-                                                onCheckedChange={(checked) => handleAbilityChange(ability.id, !!checked)}
+                                                checked={data.abilities.includes(
+                                                    ability.id,
+                                                )}
+                                                onCheckedChange={(checked) =>
+                                                    handleAbilityChange(
+                                                        ability.id,
+                                                        !!checked,
+                                                    )
+                                                }
                                                 className="mt-1"
                                             />
                                             <div className="grid gap-0.5">
-                                                <Label htmlFor={`ability-${ability.id}`} className="font-semibold cursor-pointer">
+                                                <Label
+                                                    htmlFor={`ability-${ability.id}`}
+                                                    className="cursor-pointer font-semibold"
+                                                >
                                                     {ability.label}
                                                 </Label>
                                                 <span className="text-xs text-muted-foreground">
@@ -184,54 +255,81 @@ export default function ApiTokensIndex({ tokens, plainTextToken }: Props) {
 
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-base">Active Tokens</CardTitle>
+                        <CardTitle className="text-base">
+                            Active Tokens
+                        </CardTitle>
                         <CardDescription>
-                            Active personal access tokens currently associated with your account.
+                            Active personal access tokens currently associated
+                            with your account.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
                         {tokens.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center border border-dashed rounded-lg p-8 text-center text-muted-foreground">
-                                <KeyRound className="h-8 w-8 mb-2 opacity-50" />
-                                <p className="font-medium text-sm">No active tokens found</p>
-                                <p className="text-xs">Generate a token above to get started.</p>
+                            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center text-muted-foreground">
+                                <KeyRound className="mb-2 h-8 w-8 opacity-50" />
+                                <p className="text-sm font-medium">
+                                    No active tokens found
+                                </p>
+                                <p className="text-xs">
+                                    Generate a token above to get started.
+                                </p>
                             </div>
                         ) : (
-                            <div className="border rounded-md">
+                            <div className="rounded-md border">
                                 <Table>
                                     <TableHeader>
                                         <TableRow>
-                                            <TableHead className="w-[180px]">Token Name</TableHead>
+                                            <TableHead className="w-[180px]">
+                                                Token Name
+                                            </TableHead>
                                             <TableHead>Abilities</TableHead>
-                                            <TableHead className="w-[130px]">Last Used</TableHead>
-                                            <TableHead className="w-[130px]">Created</TableHead>
-                                            <TableHead className="text-right w-[100px]">Actions</TableHead>
+                                            <TableHead className="w-[130px]">
+                                                Last Used
+                                            </TableHead>
+                                            <TableHead className="w-[130px]">
+                                                Created
+                                            </TableHead>
+                                            <TableHead className="w-[100px] text-right">
+                                                Actions
+                                            </TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
                                         {tokens.map((token) => (
                                             <TableRow key={token.id}>
-                                                <TableCell className="font-semibold text-foreground">{token.name}</TableCell>
+                                                <TableCell className="font-semibold text-foreground">
+                                                    {token.name}
+                                                </TableCell>
                                                 <TableCell>
                                                     <div className="flex flex-wrap gap-1">
-                                                        {token.abilities.map((ability) => (
-                                                            <Badge key={ability} variant="secondary" className="capitalize text-[10px] px-1.5 py-0.5">
-                                                                {ability}
-                                                            </Badge>
-                                                        ))}
+                                                        {token.abilities.map(
+                                                            (ability) => (
+                                                                <Badge
+                                                                    key={
+                                                                        ability
+                                                                    }
+                                                                    variant="secondary"
+                                                                    className="px-1.5 py-0.5 text-[10px] capitalize"
+                                                                >
+                                                                    {ability}
+                                                                </Badge>
+                                                            ),
+                                                        )}
                                                     </div>
                                                 </TableCell>
-                                                <TableCell className="text-muted-foreground text-xs">
+                                                <TableCell className="text-xs text-muted-foreground">
                                                     {token.last_used_at_diff ? (
                                                         <span className="flex items-center gap-1">
                                                             <Clock className="h-3.5 w-3.5" />
-                                                            {token.last_used_at_diff}
+                                                            {
+                                                                token.last_used_at_diff
+                                                            }
                                                         </span>
                                                     ) : (
                                                         'Never'
                                                     )}
                                                 </TableCell>
-                                                <TableCell className="text-muted-foreground text-xs">
+                                                <TableCell className="text-xs text-muted-foreground">
                                                     <span className="flex items-center gap-1">
                                                         <Calendar className="h-3.5 w-3.5" />
                                                         {token.created_at_diff}
@@ -243,10 +341,18 @@ export default function ApiTokensIndex({ tokens, plainTextToken }: Props) {
                                                         variant="destructive"
                                                         size="sm"
                                                         className="h-8 px-2"
-                                                        disabled={revokingId === token.id}
-                                                        onClick={() => revokeToken(token.id)}
+                                                        disabled={
+                                                            revokingId ===
+                                                            token.id
+                                                        }
+                                                        onClick={() =>
+                                                            revokeToken(
+                                                                token.id,
+                                                            )
+                                                        }
                                                     >
-                                                        {revokingId === token.id ? (
+                                                        {revokingId ===
+                                                        token.id ? (
                                                             'Revoking...'
                                                         ) : (
                                                             <>

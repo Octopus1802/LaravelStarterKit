@@ -26,8 +26,8 @@ class PulseServiceProvider extends ServiceProvider
         // Secure the /pulse dashboard route by ensuring ONLY authenticated users
         // with the 'Super-Admin' role or 'manage settings' permission can view the performance data.
         Gate::define('viewPulse', function (User $user) {
-            return $user->hasRole('Super-Admin') 
-                || $user->hasPermissionTo('manage settings') 
+            return $user->hasRole('Super-Admin')
+                || $user->hasPermissionTo('manage settings')
                 || $user->can('manage settings');
         });
 

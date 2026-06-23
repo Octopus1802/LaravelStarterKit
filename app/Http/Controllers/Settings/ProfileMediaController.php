@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -34,7 +35,7 @@ class ProfileMediaController extends Controller
             ],
         ]);
 
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = $request->user();
 
         $user
@@ -42,7 +43,7 @@ class ProfileMediaController extends Controller
             ->toMediaCollection('avatar');
 
         Inertia::flash('toast', [
-            'type'    => 'success',
+            'type' => 'success',
             'message' => __('Avatar updated successfully.'),
         ]);
 
@@ -54,13 +55,13 @@ class ProfileMediaController extends Controller
      */
     public function destroyAvatar(Request $request): RedirectResponse
     {
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = $request->user();
 
         $user->clearMediaCollection('avatar');
 
         Inertia::flash('toast', [
-            'type'    => 'success',
+            'type' => 'success',
             'message' => __('Avatar removed.'),
         ]);
 

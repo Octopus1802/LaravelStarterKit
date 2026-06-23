@@ -29,7 +29,7 @@ export async function getCroppedImg(
     imageSrc: string,
     pixelCrop: Area,
     rotation = 0,
-    flip = { horizontal: false, vertical: false }
+    flip = { horizontal: false, vertical: false },
 ): Promise<Blob | null> {
     const image = await createImage(imageSrc);
     const canvas = document.createElement('canvas');
@@ -45,7 +45,7 @@ export async function getCroppedImg(
     const { width: bBoxWidth, height: bBoxHeight } = rotateSize(
         image.width,
         image.height,
-        rotation
+        rotation,
     );
 
     // Set canvas size to the bounding box
@@ -62,7 +62,7 @@ export async function getCroppedImg(
         pixelCrop.x,
         pixelCrop.y,
         pixelCrop.width,
-        pixelCrop.height
+        pixelCrop.height,
     );
 
     // Set canvas width to final desired crop size

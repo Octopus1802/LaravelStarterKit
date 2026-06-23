@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Traits\HasTransactionNotifications;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -13,12 +14,15 @@ use Illuminate\Support\Carbon;
 use Laravel\Fortify\Contracts\PasskeyUser;
 use Laravel\Fortify\PasskeyAuthenticatable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
+use Laravel\Sanctum\HasApiTokens;
+use Laravel\Scout\Searchable;
+use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
-use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
-use App\Traits\HasTransactionNotifications;
+
+ // [NEW] Import Scout Searchable
 
 /**
  * @property int $id
@@ -38,7 +42,21 @@ use App\Traits\HasTransactionNotifications;
 class User extends Authenticatable implements HasMedia, PasskeyUser
 {
     /** @use HasFactory<UserFactory> */
-    use HasApiTokens, HasFactory, InteractsWithMedia, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable, HasRoles, HasTransactionNotifications;
+    use HasApiTokens, HasFactory, HasRoles, HasTransactionNotifications, InteractsWithMedia, Notifiable, PasskeyAuthenticatable, Searchable, TwoFactorAuthenticatable;
+
+    /**
+     * Get the indexable data array for the model.
+     *
+     * @return array<string, mixed>
+     */
+    public function toSearchableArray(): array
+    {
+        return [
+            'id' => (int) $this->id,
+            'name' => (string) $this->name,
+            'email' => (string) $this->email,
+        ];
+    }
 
     /**
      * Register Spatie media collections for this model.
@@ -70,7 +88,7 @@ class User extends Authenticatable implements HasMedia, PasskeyUser
     public function registerMediaConversions(?Media $media = null): void
     {
         $this->addMediaConversion('thumb')
-            ->fit(\Spatie\Image\Enums\Fit::Crop, 150, 150)
+            ->fit(Fit::Crop, 150, 150)
             ->queued();
     }
 

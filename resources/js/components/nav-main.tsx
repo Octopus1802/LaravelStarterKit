@@ -10,7 +10,13 @@ import { useCurrentUrl } from '@/hooks/use-current-url';
 import { usePermission } from '@/hooks/usePermission';
 import type { NavItem } from '@/types';
 
-export function NavMain({ items = [], label = 'Platform' }: { items: NavItem[]; label?: string }) {
+export function NavMain({
+    items = [],
+    label = 'Platform',
+}: {
+    items: NavItem[];
+    label?: string;
+}) {
     const { isCurrentUrl } = useCurrentUrl();
     const { hasRole, hasPermission, hasAnyPermission } = usePermission();
 
@@ -43,7 +49,9 @@ export function NavMain({ items = [], label = 'Platform' }: { items: NavItem[]; 
                             tooltip={{ children: item.title }}
                         >
                             <Link href={item.href} prefetch>
-                                {item.icon && <item.icon className={item.iconClassName} />}
+                                {item.icon && (
+                                    <item.icon className={item.iconClassName} />
+                                )}
                                 <span>{item.title}</span>
                             </Link>
                         </SidebarMenuButton>

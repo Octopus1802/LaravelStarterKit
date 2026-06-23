@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('receiver_id')->constrained('users')->onDelete('cascade');
             $table->text('body');
             $table->timestamps();
-            
+
             // Index to optimize chat history loading queries
             $table->index(['sender_id', 'receiver_id']);
         });

@@ -16,7 +16,11 @@ export function usePermission() {
      * Super-Admin is automatically granted access.
      */
     const hasRole = (role: string): boolean => {
-        return roles.includes(role) || roles.includes('Super-Admin') || roles.includes('Developer');
+        return (
+            roles.includes(role) ||
+            roles.includes('Super-Admin') ||
+            roles.includes('Developer')
+        );
     };
 
     /**
@@ -24,7 +28,11 @@ export function usePermission() {
      * Super-Admin and Developer are automatically granted access.
      */
     const hasPermission = (permission: string): boolean => {
-        return permissions.includes(permission) || roles.includes('Super-Admin') || roles.includes('Developer');
+        return (
+            permissions.includes(permission) ||
+            roles.includes('Super-Admin') ||
+            roles.includes('Developer')
+        );
     };
 
     /**
@@ -32,8 +40,11 @@ export function usePermission() {
      * Super-Admin and Developer are automatically granted access.
      */
     const hasAnyPermission = (requiredPermissions: string[]): boolean => {
-        if (roles.includes('Super-Admin') || roles.includes('Developer')) return true;
-        return requiredPermissions.some((permission) => permissions.includes(permission));
+        if (roles.includes('Super-Admin') || roles.includes('Developer'))
+            return true;
+        return requiredPermissions.some((permission) =>
+            permissions.includes(permission),
+        );
     };
 
     return {

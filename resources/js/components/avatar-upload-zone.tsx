@@ -74,11 +74,14 @@ export default function AvatarUploadZone({
     const [error, setError] = React.useState<string | null>(null);
 
     // ── Cropper local state ──────────────────────────────────────────────────
-    const [originalImage, setOriginalImage] = React.useState<string | null>(null);
+    const [originalImage, setOriginalImage] = React.useState<string | null>(
+        null,
+    );
     const [originalFile, setOriginalFile] = React.useState<File | null>(null);
     const [crop, setCrop] = React.useState({ x: 0, y: 0 });
     const [zoom, setZoom] = React.useState(1);
-    const [croppedAreaPixels, setCroppedAreaPixels] = React.useState<Area | null>(null);
+    const [croppedAreaPixels, setCroppedAreaPixels] =
+        React.useState<Area | null>(null);
     const [isCropOpen, setIsCropOpen] = React.useState(false);
 
     const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -100,7 +103,11 @@ export default function AvatarUploadZone({
 
     // ── Validation ───────────────────────────────────────────────────────────
     function validateFile(file: File): string | null {
-        if (!ACCEPTED_MIME_TYPES.includes(file.type as (typeof ACCEPTED_MIME_TYPES)[number])) {
+        if (
+            !ACCEPTED_MIME_TYPES.includes(
+                file.type as (typeof ACCEPTED_MIME_TYPES)[number],
+            )
+        ) {
             return 'Only JPEG, PNG, and WebP images are accepted.';
         }
         if (file.size > MAX_FILE_BYTES) {
@@ -148,7 +155,10 @@ export default function AvatarUploadZone({
             setUploading(true);
             setIsCropOpen(false);
 
-            const croppedBlob = await getCroppedImg(originalImage, croppedAreaPixels);
+            const croppedBlob = await getCroppedImg(
+                originalImage,
+                croppedAreaPixels,
+            );
             if (!croppedBlob) {
                 setError('Could not crop image.');
                 setUploading(false);
@@ -162,9 +172,13 @@ export default function AvatarUploadZone({
 
             const formData = new FormData();
             const extension = originalFile?.name.split('.').pop() || 'jpg';
-            const fileToUpload = new File([croppedBlob], `avatar.${extension}`, {
-                type: croppedBlob.type,
-            });
+            const fileToUpload = new File(
+                [croppedBlob],
+                `avatar.${extension}`,
+                {
+                    type: croppedBlob.type,
+                },
+            );
             formData.append('avatar', fileToUpload);
 
             router.post(uploadRoute, formData, {
@@ -175,7 +189,9 @@ export default function AvatarUploadZone({
                     cleanupCropStates();
                 },
                 onError: (errors) => {
-                    setError(errors.avatar ?? 'Upload failed. Please try again.');
+                    setError(
+                        errors.avatar ?? 'Upload failed. Please try again.',
+                    );
                     setPreview(null);
                     cleanupCropStates();
                 },
@@ -258,7 +274,7 @@ export default function AvatarUploadZone({
                     'group relative cursor-pointer rounded-full outline-none',
                     'ring-2 ring-offset-2 ring-offset-background transition-all duration-200',
                     isDragging
-                        ? 'ring-primary scale-105'
+                        ? 'scale-105 ring-primary'
                         : 'ring-transparent hover:ring-primary/60',
                     isLoading && 'pointer-events-none opacity-60',
                 )}
@@ -270,7 +286,7 @@ export default function AvatarUploadZone({
                         alt={`${user.name}'s avatar`}
                         className="object-cover"
                     />
-                    <AvatarFallback className="text-xl font-semibold bg-gradient-to-br from-violet-500 to-indigo-600 text-white">
+                    <AvatarFallback className="bg-gradient-to-br from-violet-500 to-indigo-600 text-xl font-semibold text-white">
                         {getInitials(user.name)}
                     </AvatarFallback>
                 </Avatar>
@@ -279,7 +295,7 @@ export default function AvatarUploadZone({
                 {isLoading && (
                     <span className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 backdrop-blur-sm">
                         <Loader2
-                            className="size-6 text-white animate-spin"
+                            className="size-6 animate-spin text-white"
                             aria-hidden="true"
                         />
                     </span>
@@ -291,7 +307,7 @@ export default function AvatarUploadZone({
                         aria-hidden="true"
                         className={cn(
                             'absolute inset-0 flex flex-col items-center justify-center rounded-full',
-                            'bg-black/50 backdrop-blur-sm text-white text-[10px] font-medium gap-1',
+                            'gap-1 bg-black/50 text-[10px] font-medium text-white backdrop-blur-sm',
                             'opacity-0 transition-opacity duration-200 group-hover:opacity-100',
                         )}
                     >
@@ -302,7 +318,7 @@ export default function AvatarUploadZone({
 
                 {/* Drag-active ring pulse */}
                 {isDragging && (
-                    <span className="absolute inset-0 rounded-full border-2 border-dashed border-primary animate-pulse" />
+                    <span className="absolute inset-0 animate-pulse rounded-full border-2 border-dashed border-primary" />
                 )}
             </div>
 
@@ -329,7 +345,7 @@ export default function AvatarUploadZone({
                         size="sm"
                         disabled={isLoading}
                         onClick={handleDelete}
-                        className="gap-1.5 text-destructive hover:text-destructive hover:bg-destructive/10"
+                        className="gap-1.5 text-destructive hover:bg-destructive/10 hover:text-destructive"
                     >
                         <Trash2 className="size-4" aria-hidden="true" />
                         {deleting ? 'Removing…' : 'Remove'}
@@ -338,7 +354,7 @@ export default function AvatarUploadZone({
             </div>
 
             {/* ── File constraints hint ── */}
-            <p className="text-xs text-muted-foreground text-center">
+            <p className="text-center text-xs text-muted-foreground">
                 JPEG, PNG or WebP · max 5 MB
             </p>
 
@@ -346,21 +362,24 @@ export default function AvatarUploadZone({
             {error && (
                 <p
                     role="alert"
-                    className="text-xs text-destructive font-medium text-center max-w-[200px]"
+                    className="max-w-[200px] text-center text-xs font-medium text-destructive"
                 >
                     {error}
                 </p>
             )}
 
             {/* ── Crop Modal ── */}
-            <Dialog open={isCropOpen} onOpenChange={(open) => {
-                if (!open) handleCropCancel();
-            }}>
-                <DialogContent className="sm:max-w-md max-w-full">
+            <Dialog
+                open={isCropOpen}
+                onOpenChange={(open) => {
+                    if (!open) handleCropCancel();
+                }}
+            >
+                <DialogContent className="max-w-full sm:max-w-md">
                     <DialogHeader>
                         <DialogTitle>Crop Profile Image</DialogTitle>
                     </DialogHeader>
-                    <div className="relative h-72 w-full bg-neutral-950 rounded-md overflow-hidden my-4 border">
+                    <div className="relative my-4 h-72 w-full overflow-hidden rounded-md border bg-neutral-950">
                         {originalImage && (
                             <Cropper
                                 image={originalImage}
@@ -378,7 +397,12 @@ export default function AvatarUploadZone({
                         )}
                     </div>
                     <div className="flex flex-col gap-2">
-                        <label htmlFor="zoom-slider" className="text-xs font-medium text-muted-foreground">Zoom</label>
+                        <label
+                            htmlFor="zoom-slider"
+                            className="text-xs font-medium text-muted-foreground"
+                        >
+                            Zoom
+                        </label>
                         <input
                             id="zoom-slider"
                             type="range"
@@ -388,10 +412,10 @@ export default function AvatarUploadZone({
                             step={0.1}
                             aria-label="Zoom"
                             onChange={(e) => setZoom(Number(e.target.value))}
-                            className="w-full h-1 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-primary"
+                            className="h-1 w-full cursor-pointer appearance-none rounded-lg bg-neutral-200 accent-primary dark:bg-neutral-800"
                         />
                     </div>
-                    <DialogFooter className="mt-4 flex sm:flex-row flex-col gap-2">
+                    <DialogFooter className="mt-4 flex flex-col gap-2 sm:flex-row">
                         <Button
                             type="button"
                             variant="ghost"

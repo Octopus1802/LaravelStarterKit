@@ -1,6 +1,7 @@
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, Menu, Search } from 'lucide-react';
+import { BookOpen, Folder, LayoutGrid, Menu } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
+import { HeaderSearch } from '@/components/header-search';
 import AppLogoDynamic from '@/components/app-logo-dynamic';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -95,7 +96,10 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                                 </SheetTitle>
                                 <SheetHeader className="flex justify-start text-left">
                                     <div className="flex h-6 w-6 items-center justify-center overflow-hidden rounded-sm">
-                                        <AppLogoDynamic className="size-full object-contain" iconClassName="h-6 w-6 fill-current text-black dark:text-white" />
+                                        <AppLogoDynamic
+                                            className="size-full object-contain"
+                                            iconClassName="h-6 w-6 fill-current text-black dark:text-white"
+                                        />
                                     </div>
                                 </SheetHeader>
                                 <div className="flex h-full flex-1 flex-col space-y-4 p-4">
@@ -180,14 +184,8 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                     </div>
 
                     <div className="ml-auto flex items-center space-x-2">
-                        <div className="relative flex items-center space-x-1">
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="group h-9 w-9 cursor-pointer"
-                            >
-                                <Search className="!size-5 opacity-80 group-hover:opacity-100" />
-                            </Button>
+                        <div className="relative flex items-center space-x-2">
+                            <HeaderSearch />
                             <div className="ml-1 hidden gap-1 lg:flex">
                                 {rightNavItems.map((item) => (
                                     <Tooltip key={item.title}>

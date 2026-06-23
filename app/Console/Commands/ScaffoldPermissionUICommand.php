@@ -56,24 +56,24 @@ class ScaffoldPermissionUICommand extends Command
     protected function createViews()
     {
         $dir = base_path('resources/views/admin/permissions');
-        if (!is_dir($dir)) {
+        if (! is_dir($dir)) {
             mkdir($dir, 0755, true);
         }
 
-        $this->createView('index.stub', $dir . '/index.blade.php');
-        $this->createView('create.stub', $dir . '/create.blade.php');
-        $this->createView('edit.stub', $dir . '/edit.blade.php');
+        $this->createView('index.stub', $dir.'/index.blade.php');
+        $this->createView('create.stub', $dir.'/create.blade.php');
+        $this->createView('edit.stub', $dir.'/edit.blade.php');
     }
 
     protected function createView($stubName, $path)
     {
-        $stub = $this->getStub('Views/' . $stubName);
+        $stub = $this->getStub('Views/'.$stubName);
         file_put_contents($path, $stub);
-        $this->info('View created: ' . $path);
+        $this->info('View created: '.$path);
     }
 
     protected function getStub($filename)
     {
-        return file_get_contents(__DIR__ . '/stubs/' . $filename);
+        return file_get_contents(__DIR__.'/stubs/'.$filename);
     }
 }

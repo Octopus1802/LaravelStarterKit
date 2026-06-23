@@ -17,6 +17,7 @@
         "laravel/pulse": "^1.7",
         "laravel/reverb": "^1.10",
         "laravel/sanctum": "^4.0",
+        "laravel/scout": "^11.3",
         "laravel/tinker": "^3.0",
         "laravel/wayfinder": "^0.1.14",
         "spatie/laravel-medialibrary": "*",

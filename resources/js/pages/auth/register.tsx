@@ -15,16 +15,17 @@ type Props = {
     registrationEnabled?: boolean;
 };
 
-export default function Register({ passwordRules, registrationEnabled = true }: Props) {
+export default function Register({
+    passwordRules,
+    registrationEnabled = true,
+}: Props) {
     if (!registrationEnabled) {
         return (
             <>
                 <Head title="Registration Disabled" />
                 <div className="grid gap-6">
                     <Button asChild className="w-full">
-                        <Link href={login()}>
-                            Back to Log in
-                        </Link>
+                        <Link href={login()}>Back to Log in</Link>
                     </Button>
                 </div>
             </>
@@ -132,10 +133,15 @@ export default function Register({ passwordRules, registrationEnabled = true }: 
 }
 
 Register.layout = (page: React.ReactNode) => {
-    const registrationEnabled = (page as any)?.props?.registrationEnabled !== false;
+    const registrationEnabled =
+        (page as any)?.props?.registrationEnabled !== false;
     return (
         <AuthLayout
-            title={registrationEnabled ? 'Create an account' : 'Registration Disabled'}
+            title={
+                registrationEnabled
+                    ? 'Create an account'
+                    : 'Registration Disabled'
+            }
             description={
                 registrationEnabled
                     ? 'Enter your details below to create your account'

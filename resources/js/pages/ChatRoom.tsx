@@ -3,7 +3,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { index, store } from '@/routes/chat';
-import { ArrowLeft, MessageSquareCode, Search, SendHorizontal } from 'lucide-react';
+import {
+    ArrowLeft,
+    MessageSquareCode,
+    Search,
+    SendHorizontal,
+} from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 interface User {
@@ -34,11 +39,16 @@ interface ChatRoomProps {
 // Synthesize a pleasant dual-tone chime sound via Web Audio API
 const playNotificationSound = () => {
     try {
-        const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+        const AudioContextClass =
+            window.AudioContext || (window as any).webkitAudioContext;
         if (!AudioContextClass) return;
 
         const audioCtx = new AudioContextClass();
-        const playTone = (freq: number, startTime: number, duration: number) => {
+        const playTone = (
+            freq: number,
+            startTime: number,
+            duration: number,
+        ) => {
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
 
@@ -55,13 +65,18 @@ const playNotificationSound = () => {
 
         const now = audioCtx.currentTime;
         playTone(587.33, now, 0.08); // D5 chime
-        playTone(880.00, now + 0.08, 0.2); // A5 chime
+        playTone(880.0, now + 0.08, 0.2); // A5 chime
     } catch (e) {
         console.warn('Failed to play notification sound:', e);
     }
 };
 
-export default function ChatRoom({ auth, receiver, messages, users }: ChatRoomProps) {
+export default function ChatRoom({
+    auth,
+    receiver,
+    messages,
+    users,
+}: ChatRoomProps) {
     const [searchQuery, setSearchQuery] = useState('');
     const [messagesList, setMessagesList] = useState<Message[]>(messages);
     const [mobileShowSidebar, setMobileShowSidebar] = useState(!receiver);
@@ -127,16 +142,20 @@ export default function ChatRoom({ auth, receiver, messages, users }: ChatRoomPr
     };
 
     // Filter contacts list based on search query
-    const filteredUsers = users.filter((u) =>
-        u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        u.email.toLowerCase().includes(searchQuery.toLowerCase())
+    const filteredUsers = users.filter(
+        (u) =>
+            u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            u.email.toLowerCase().includes(searchQuery.toLowerCase()),
     );
 
     // Human-friendly time formatter
     const formatTime = (dateString: string) => {
         try {
             const date = new Date(dateString);
-            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            return date.toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit',
+            });
         } catch {
             return '';
         }
@@ -154,31 +173,38 @@ export default function ChatRoom({ auth, receiver, messages, users }: ChatRoomPr
 
     return (
         <>
-            <Head title={receiver ? `Chat with ${receiver.name}` : 'Chat System'} />
+            <Head
+                title={receiver ? `Chat with ${receiver.name}` : 'Chat System'}
+            />
 
-            <div className="flex h-[650px] max-h-[calc(100dvh-8rem)] m-5 flex-1 overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border bg-background">
+            <div className="m-5 flex h-[650px] max-h-[calc(100dvh-8rem)] flex-1 overflow-hidden rounded-xl border border-sidebar-border/70 bg-background dark:border-sidebar-border">
                 {/* 1. CONTACTS LIST (SIDEBAR) */}
                 <div
-                    className={`${mobileShowSidebar ? 'flex' : 'hidden'
-                        } md:flex flex-col w-full md:w-80 border-r border-sidebar-border/70 dark:border-sidebar-border bg-card shrink-0 h-full overflow-hidden`}
+                    className={`${
+                        mobileShowSidebar ? 'flex' : 'hidden'
+                    } h-full w-full shrink-0 flex-col overflow-hidden border-r border-sidebar-border/70 bg-card md:flex md:w-80 dark:border-sidebar-border`}
                 >
-                    <div className="p-4 border-b border-sidebar-border/70 dark:border-sidebar-border">
-                        <h2 className="text-lg font-bold tracking-tight mb-3">Chats</h2>
+                    <div className="border-b border-sidebar-border/70 p-4 dark:border-sidebar-border">
+                        <h2 className="mb-3 text-lg font-bold tracking-tight">
+                            Chats
+                        </h2>
                         <div className="relative">
-                            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <Search className="absolute top-2.5 left-3 h-4 w-4 text-muted-foreground" />
                             <Input
                                 placeholder="Search contacts..."
-                                className="pl-9 bg-muted/30 focus-visible:bg-transparent"
+                                className="bg-muted/30 pl-9 focus-visible:bg-transparent"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                             />
                         </div>
                     </div>
 
-                    <div className="flex-1 min-h-0 overflow-y-auto scrollbar-none p-2 space-y-1">
+                    <div className="scrollbar-none min-h-0 flex-1 space-y-1 overflow-y-auto p-2">
                         {filteredUsers.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center h-32 text-center text-muted-foreground">
-                                <span className="text-sm">No contacts found</span>
+                            <div className="flex h-32 flex-col items-center justify-center text-center text-muted-foreground">
+                                <span className="text-sm">
+                                    No contacts found
+                                </span>
                             </div>
                         ) : (
                             filteredUsers.map((u) => {
@@ -187,22 +213,36 @@ export default function ChatRoom({ auth, receiver, messages, users }: ChatRoomPr
                                     <Link
                                         key={u.id}
                                         href={index(u.id).url}
-                                        className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${isSelected
-                                            ? 'bg-primary text-primary-foreground shadow-xs'
-                                            : 'hover:bg-muted/60 text-card-foreground'
-                                            }`}
+                                        className={`flex items-center gap-3 rounded-lg px-3 py-2.5 transition-all duration-200 ${
+                                            isSelected
+                                                ? 'bg-primary text-primary-foreground shadow-xs'
+                                                : 'text-card-foreground hover:bg-muted/60'
+                                        }`}
                                     >
                                         <Avatar className="h-10 w-10 border border-border/40">
-                                            <AvatarImage src={u.avatar_url} alt={u.name} />
-                                            <AvatarFallback className={isSelected ? 'bg-primary-foreground/10 text-primary-foreground' : 'bg-muted text-muted-foreground'}>
+                                            <AvatarImage
+                                                src={u.avatar_url}
+                                                alt={u.name}
+                                            />
+                                            <AvatarFallback
+                                                className={
+                                                    isSelected
+                                                        ? 'bg-primary-foreground/10 text-primary-foreground'
+                                                        : 'bg-muted text-muted-foreground'
+                                                }
+                                            >
                                                 {getInitials(u.name)}
                                             </AvatarFallback>
                                         </Avatar>
-                                        <div className="flex-1 min-w-0">
-                                            <p className={`text-sm font-semibold truncate ${isSelected ? 'text-primary-foreground' : 'text-foreground'}`}>
+                                        <div className="min-w-0 flex-1">
+                                            <p
+                                                className={`truncate text-sm font-semibold ${isSelected ? 'text-primary-foreground' : 'text-foreground'}`}
+                                            >
                                                 {u.name}
                                             </p>
-                                            <p className={`text-xs truncate ${isSelected ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}>
+                                            <p
+                                                className={`truncate text-xs ${isSelected ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}
+                                            >
                                                 {u.email}
                                             </p>
                                         </div>
@@ -215,13 +255,14 @@ export default function ChatRoom({ auth, receiver, messages, users }: ChatRoomPr
 
                 {/* 2. CHAT PANEL */}
                 <div
-                    className={`${!mobileShowSidebar ? 'flex' : 'hidden'
-                        } md:flex flex-col flex-1 bg-background overflow-hidden h-full min-h-0`}
+                    className={`${
+                        !mobileShowSidebar ? 'flex' : 'hidden'
+                    } h-full min-h-0 flex-1 flex-col overflow-hidden bg-background md:flex`}
                 >
                     {receiver ? (
                         <>
                             {/* CHAT HEADER */}
-                            <div className="flex items-center gap-3 px-4 py-3 border-b border-sidebar-border/70 dark:border-sidebar-border bg-card">
+                            <div className="flex items-center gap-3 border-b border-sidebar-border/70 bg-card px-4 py-3 dark:border-sidebar-border">
                                 <Button
                                     variant="ghost"
                                     size="icon"
@@ -231,51 +272,74 @@ export default function ChatRoom({ auth, receiver, messages, users }: ChatRoomPr
                                     <ArrowLeft className="h-5 w-5" />
                                 </Button>
                                 <Avatar className="h-9 w-9 border border-border/40">
-                                    <AvatarImage src={receiver.avatar_url} alt={receiver.name} />
+                                    <AvatarImage
+                                        src={receiver.avatar_url}
+                                        alt={receiver.name}
+                                    />
                                     <AvatarFallback className="bg-muted text-muted-foreground">
                                         {getInitials(receiver.name)}
                                     </AvatarFallback>
                                 </Avatar>
                                 <div>
-                                    <h3 className="text-sm font-bold text-foreground leading-none">{receiver.name}</h3>
-                                    <p className="text-xs text-muted-foreground mt-0.5">{receiver.email}</p>
+                                    <h3 className="text-sm leading-none font-bold text-foreground">
+                                        {receiver.name}
+                                    </h3>
+                                    <p className="mt-0.5 text-xs text-muted-foreground">
+                                        {receiver.email}
+                                    </p>
                                 </div>
                             </div>
 
                             {/* CHAT MESSAGES SCROLL AREA */}
-                            <div className="flex-1 min-h-0 overflow-y-auto scrollbar-none p-4 space-y-4 bg-muted/10">
+                            <div className="scrollbar-none min-h-0 flex-1 space-y-4 overflow-y-auto bg-muted/10 p-4">
                                 {messagesList.length === 0 ? (
-                                    <div className="flex flex-col items-center justify-center h-full text-center p-8">
-                                        <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                                    <div className="flex h-full flex-col items-center justify-center p-8 text-center">
+                                        <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
                                             <MessageSquareCode className="h-6 w-6 text-primary" />
                                         </div>
-                                        <p className="text-sm font-semibold text-foreground">No messages yet</p>
-                                        <p className="text-xs text-muted-foreground mt-1 max-w-xs">
-                                            Send a message to start your real-time conversation.
+                                        <p className="text-sm font-semibold text-foreground">
+                                            No messages yet
+                                        </p>
+                                        <p className="mt-1 max-w-xs text-xs text-muted-foreground">
+                                            Send a message to start your
+                                            real-time conversation.
                                         </p>
                                     </div>
                                 ) : (
                                     messagesList.map((msg, index) => {
-                                        const isOutgoing = msg.sender_id === auth.user.id;
+                                        const isOutgoing =
+                                            msg.sender_id === auth.user.id;
                                         return (
                                             <div
                                                 key={msg.id || index}
                                                 className={`flex ${isOutgoing ? 'justify-end' : 'justify-start'}`}
                                             >
-                                                <div className={`max-w-[75%] md:max-w-[60%] flex flex-col`}>
+                                                <div
+                                                    className={`flex max-w-[75%] flex-col md:max-w-[60%]`}
+                                                >
                                                     <div
-                                                        className={`px-4 py-2.5 shadow-xs text-sm ${isOutgoing
-                                                            ? 'bg-primary text-primary-foreground rounded-2xl rounded-tr-none'
-                                                            : 'bg-card text-card-foreground border border-border/50 rounded-2xl rounded-tl-none'
-                                                            }`}
+                                                        className={`px-4 py-2.5 text-sm shadow-xs ${
+                                                            isOutgoing
+                                                                ? 'rounded-2xl rounded-tr-none bg-primary text-primary-foreground'
+                                                                : 'rounded-2xl rounded-tl-none border border-border/50 bg-card text-card-foreground'
+                                                        }`}
                                                     >
-                                                        <p className="whitespace-pre-wrap break-words">{msg.body}</p>
+                                                        <p className="break-words whitespace-pre-wrap">
+                                                            {msg.body}
+                                                        </p>
                                                     </div>
                                                     <span
-                                                        className={`text-[10px] text-muted-foreground/80 mt-1 select-none px-1 ${isOutgoing ? 'text-right' : 'text-left'
-                                                            }`}
+                                                        className={`mt-1 px-1 text-[10px] text-muted-foreground/80 select-none ${
+                                                            isOutgoing
+                                                                ? 'text-right'
+                                                                : 'text-left'
+                                                        }`}
                                                     >
-                                                        {mounted ? formatTime(msg.created_at) : ''}
+                                                        {mounted
+                                                            ? formatTime(
+                                                                  msg.created_at,
+                                                              )
+                                                            : ''}
                                                     </span>
                                                 </div>
                                             </div>
@@ -288,12 +352,14 @@ export default function ChatRoom({ auth, receiver, messages, users }: ChatRoomPr
                             {/* CHAT INPUT BAR */}
                             <form
                                 onSubmit={handleSendMessage}
-                                className="p-3 border-t border-sidebar-border/70 dark:border-sidebar-border bg-card flex items-center gap-2"
+                                className="flex items-center gap-2 border-t border-sidebar-border/70 bg-card p-3 dark:border-sidebar-border"
                             >
                                 <Input
                                     placeholder={`Message ${receiver.name}...`}
                                     value={data.body}
-                                    onChange={(e) => setData('body', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('body', e.target.value)
+                                    }
                                     disabled={processing}
                                     maxLength={5000}
                                     className="flex-1 bg-muted/30 focus-visible:bg-transparent"
@@ -311,13 +377,16 @@ export default function ChatRoom({ auth, receiver, messages, users }: ChatRoomPr
                         </>
                     ) : (
                         /* EMPTY CHAT SCREEN (NO RECEIVER SELECTED) */
-                        <div className="flex flex-col items-center justify-center flex-1 text-center p-8 bg-muted/5">
-                            <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-4 border border-primary/20">
+                        <div className="flex flex-1 flex-col items-center justify-center bg-muted/5 p-8 text-center">
+                            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10">
                                 <MessageSquareCode className="h-8 w-8 text-primary" />
                             </div>
-                            <h3 className="text-lg font-bold text-foreground">Real-Time Messaging</h3>
-                            <p className="text-sm text-muted-foreground mt-1.5 max-w-sm">
-                                Select a contact from the list on the left to start a real-time, one-on-one chat session.
+                            <h3 className="text-lg font-bold text-foreground">
+                                Real-Time Messaging
+                            </h3>
+                            <p className="mt-1.5 max-w-sm text-sm text-muted-foreground">
+                                Select a contact from the list on the left to
+                                start a real-time, one-on-one chat session.
                             </p>
                         </div>
                     )}

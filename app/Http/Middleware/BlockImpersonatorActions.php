@@ -31,13 +31,13 @@ class BlockImpersonatorActions
             }
 
             foreach ($sensitivePatterns as $pattern) {
-                if ($request->is($pattern) && !$request->isMethod('GET')) {
+                if ($request->is($pattern) && ! $request->isMethod('GET')) {
                     if ($request->header('X-Inertia')) {
                         return back()->with('error', 'Sensitive security operations are disabled while impersonating a user.');
                     }
-                    
+
                     return response()->json([
-                        'message' => 'Sensitive security operations are disabled while impersonating a user.'
+                        'message' => 'Sensitive security operations are disabled while impersonating a user.',
                     ], 403);
                 }
             }
