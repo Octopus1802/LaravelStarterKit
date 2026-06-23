@@ -14,10 +14,12 @@ export type User = {
 
 export type NotificationData = {
     id: string | number;
-    amount: number | string;
-    currency: string;
+    amount?: number | string;
+    currency?: string;
     status: 'success' | 'pending' | 'failed';
     message: string;
+    action_request_id?: number;
+    action_type?: string;
 };
 
 export type DatabaseNotification = {

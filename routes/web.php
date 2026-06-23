@@ -51,6 +51,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Transaction Notification Routes
     Route::post('notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
     Route::post('notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+
+    // Action Center Routes
+    Route::get('action-center', [\App\Http\Controllers\ActionCenterController::class, 'index'])->name('action-center.index');
+    Route::post('action-center/requests', [\App\Http\Controllers\ActionCenterController::class, 'store'])->name('action-center.requests.store');
+    Route::put('action-center/requests/{actionRequest}', [\App\Http\Controllers\ActionCenterController::class, 'update'])->name('action-center.requests.update');
+    Route::delete('action-center/requests/{actionRequest}', [\App\Http\Controllers\ActionCenterController::class, 'destroy'])->name('action-center.requests.destroy');
 });
 
 require __DIR__.'/settings.php';

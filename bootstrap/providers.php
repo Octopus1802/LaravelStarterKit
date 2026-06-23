@@ -9,3 +9,4 @@ return [
     FortifyServiceProvider::class,
     PulseServiceProvider::class,
 ];
+

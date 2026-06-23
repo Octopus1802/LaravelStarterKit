@@ -1,6 +1,7 @@
 import { Link, router } from '@inertiajs/react';
 import {
     BookOpen,
+    ClipboardList,
     FolderGit2,
     LayoutGrid,
     LogOut,
@@ -39,6 +40,12 @@ const mainNavItems: NavItem[] = [
         href: '/chat',
         icon: MessageSquare,
         iconClassName: 'text-pink-500 dark:text-pink-400',
+    },
+    {
+        title: 'Action Center',
+        href: '/action-center',
+        icon: ClipboardList,
+        iconClassName: 'text-violet-500 dark:text-violet-400',
     },
 ];
 

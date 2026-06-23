@@ -36,10 +36,11 @@ export function NotificationDropdown() {
             (notification: any) => {
                 // Confirm it matches our TransactionNotification payload format
                 if (
-                    notification.type ===
-                        'App\\Notifications\\TransactionNotification' ||
+                    notification.type === 'App\\Notifications\\TransactionNotification' ||
+                    notification.type === 'App\\Notifications\\ActionRequestNotification' ||
                     (notification.data && notification.data.status)
                 ) {
+                    const isTransaction = (notification.type || '').includes('TransactionNotification');
                     const newNotification: DatabaseNotification = {
                         id: notification.id,
                         type:
@@ -49,12 +50,14 @@ export function NotificationDropdown() {
                         notifiable_id: auth.user.id,
                         data: {
                             id: notification.data?.id || notification.id,
-                            amount: notification.data?.amount ?? 0,
-                            currency: notification.data?.currency || 'USD',
+                            amount: notification.data?.amount,
+                            currency: notification.data?.currency,
                             status: notification.data?.status || 'success',
                             message:
                                 notification.data?.message ||
-                                'New transaction received',
+                                (isTransaction ? 'New transaction received' : 'New request update'),
+                            action_request_id: notification.data?.action_request_id,
+                            action_type: notification.data?.action_type,
                         },
                         read_at: null,
                         created_at: new Date().toISOString(),
@@ -68,7 +71,9 @@ export function NotificationDropdown() {
 
                     // Fire browser toast alert
                     const toastMessage = newNotification.data.message;
-                    const toastDesc = `${newNotification.data.currency} ${Number(newNotification.data.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })} [${newNotification.data.status.toUpperCase()}]`;
+                    const toastDesc = isTransaction
+                        ? `${newNotification.data.currency || 'USD'} ${Number(newNotification.data.amount ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2 })} [${newNotification.data.status.toUpperCase()}]`
+                        : `Status: ${newNotification.data.status.toUpperCase()}`;
 
                     if (newNotification.data.status === 'success') {
                         toast.success(toastMessage, { description: toastDesc });
@@ -216,14 +221,20 @@ export function NotificationDropdown() {
                                             {data.message}
                                         </p>
                                         <div className="flex items-center justify-between gap-2">
-                                            <span className="rounded bg-muted px-1.5 py-0.5 text-[11px] font-semibold text-muted-foreground">
-                                                {Number(
-                                                    data.amount,
-                                                ).toLocaleString(undefined, {
-                                                    minimumFractionDigits: 2,
-                                                })}{' '}
-                                                {data.currency}
-                                            </span>
+                                            {notification.type.includes('TransactionNotification') ? (
+                                                <span className="rounded bg-muted px-1.5 py-0.5 text-[11px] font-semibold text-muted-foreground">
+                                                    {Number(
+                                                        data.amount ?? 0,
+                                                    ).toLocaleString(undefined, {
+                                                        minimumFractionDigits: 2,
+                                                    })}{' '}
+                                                    {data.currency}
+                                                </span>
+                                            ) : (
+                                                <span className="rounded bg-indigo-50 px-1.5 py-0.5 text-[10px] font-semibold text-indigo-600 dark:bg-indigo-950/40 dark:text-indigo-400">
+                                                    Action Center
+                                                </span>
+                                            )}
                                             <span className="text-[10px] text-muted-foreground/75">
                                                 {timeAgo}
                                             </span>
@@ -238,7 +249,7 @@ export function NotificationDropdown() {
                 <DropdownMenuSeparator className="m-0" />
                 <div className="border-t border-sidebar-border bg-sidebar/10 p-2 text-center">
                     <span className="block text-[10px] font-medium text-muted-foreground">
-                        Showing last 5 transaction notifications
+                        Showing last 5 unread notifications
                     </span>
                 </div>
             </DropdownMenuContent>
