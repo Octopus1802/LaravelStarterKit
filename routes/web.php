@@ -42,6 +42,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('chat', [\App\Http\Controllers\ChatController::class, 'fallback'])->name('chat.fallback');
     Route::get('chat/{receiver}', [\App\Http\Controllers\ChatController::class, 'index'])->name('chat.index');
     Route::post('chat/{receiver}', [\App\Http\Controllers\ChatController::class, 'store'])->name('chat.store');
+
+    // Transaction Notification Routes
+    Route::post('notifications/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
+    Route::post('notifications/{id}/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.read');
 });
 
 require __DIR__.'/settings.php';

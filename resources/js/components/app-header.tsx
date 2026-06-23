@@ -5,6 +5,7 @@ import AppLogoDynamic from '@/components/app-logo-dynamic';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { NotificationDropdown } from '@/components/NotificationDropdown';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -212,6 +213,7 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                                 ))}
                             </div>
                         </div>
+                        <NotificationDropdown />
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button

@@ -62,6 +62,7 @@ class HandleInertiaRequests extends Middleware
                 'impersonator' => session()->has('impersonator_id')
                     ? \App\Models\User::find(session('impersonator_id'))
                     : null,
+                'unread_notifications' => $user ? $user->unreadNotifications()->take(5)->get() : [],
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];

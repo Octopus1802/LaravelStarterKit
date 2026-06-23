@@ -12,11 +12,31 @@ export type User = {
     [key: string]: unknown;
 };
 
+export type NotificationData = {
+    id: string | number;
+    amount: number | string;
+    currency: string;
+    status: 'success' | 'pending' | 'failed';
+    message: string;
+};
+
+export type DatabaseNotification = {
+    id: string;
+    type: string;
+    notifiable_type: string;
+    notifiable_id: number;
+    data: NotificationData;
+    read_at: string | null;
+    created_at: string;
+    updated_at: string;
+};
+
 export type Auth = {
     user: User;
     roles: string[];
     permissions: string[];
     impersonator?: User | null;
+    unread_notifications?: DatabaseNotification[];
 };
 
 /* @chisel-passkeys */

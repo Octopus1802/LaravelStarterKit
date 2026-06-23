@@ -18,6 +18,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
+use App\Traits\HasTransactionNotifications;
 
 /**
  * @property int $id
@@ -37,7 +38,7 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable implements HasMedia, PasskeyUser
 {
     /** @use HasFactory<UserFactory> */
-    use HasApiTokens, HasFactory, InteractsWithMedia, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable, HasRoles;
+    use HasApiTokens, HasFactory, InteractsWithMedia, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable, HasRoles, HasTransactionNotifications;
 
     /**
      * Register Spatie media collections for this model.

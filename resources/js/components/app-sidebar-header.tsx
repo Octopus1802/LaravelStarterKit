@@ -2,7 +2,7 @@ import { Breadcrumbs } from '@/components/breadcrumbs';
 import { NavUser } from '@/components/nav-user';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import type { BreadcrumbItem as BreadcrumbItemType } from '@/types';
-
+import { NotificationDropdown } from '@/components/NotificationDropdown';
 
 export function AppSidebarHeader({
     breadcrumbs = [],
@@ -15,7 +15,8 @@ export function AppSidebarHeader({
                 <SidebarTrigger className="-ml-1" />
                 <Breadcrumbs breadcrumbs={breadcrumbs} />
             </div>
-            <div className="ml-auto">
+            <div className="ml-auto flex items-center gap-2">
+                <NotificationDropdown />
                 <NavUser />
             </div>
         </header>
