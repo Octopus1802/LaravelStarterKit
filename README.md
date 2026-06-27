@@ -11,13 +11,13 @@ To keep the starter kit clean and avoid conflicts with the original repository h
 ### 1. Scaffold Your Project
 Run this command in your terminal to clone a clean version of the files into a new folder (e.g. `my-awesome-app`):
 ```bash
-npx degit Octopus1802/LaravelStarterKit my-awesome-app
+npx degit Octopus1802/LaravelStarterKit. --force
 ```
 
 ### 2. Install Dependencies & Setup
 Since individual package folders and environments are excluded by `.gitignore`, you must install dependencies and configure the environment. We provide a single convenience command to configure everything:
 ```bash
-cd my-awesome-app
+
 composer run setup
 ```
 *This command runs `composer install`, sets up your `.env` file, generates application keys, runs database migrations, runs `npm install`, and compiles assets.*
