@@ -9,9 +9,13 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\Settings\ApiTokenController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\PublicPropertyController;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
+Route::get('/buy', [PublicPropertyController::class, 'buy'])->name('public.buy');
+Route::get('/rent', [PublicPropertyController::class, 'rent'])->name('public.rent');
+Route::post('/properties/inquire', [PublicPropertyController::class, 'inquire'])->name('public.inquire');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('api/search', [SearchController::class, 'search'])->name('api.search');

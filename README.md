@@ -11,7 +11,7 @@ To keep the starter kit clean and avoid conflicts with the original repository h
 ### 1. Scaffold Your Project
 Run this command in your terminal to clone a clean version of the files into a new folder (e.g. `my-awesome-app`):
 ```bash
-npx degit Octopus1802/LaravelStarterKit. --force
+npx degit Octopus1802/LaravelStarterKit . --force
 ```
 
 ### 2. Install Dependencies & Setup
@@ -64,7 +64,7 @@ From the root folder, run:
 ```bash
 npm run dev
 ```
-*This concurrently starts the PHP local server, the Laravel queue listener, and the Vite client application using a single console.*
+*This concurrently starts the PHP local server, the Laravel queue listener, the Reverb WebSocket server, and the Vite client application using a single console.*
 
 ### Option B: Independent Startup
 
@@ -79,6 +79,39 @@ php artisan queue:listen
 ```bash
 npm run dev
 ```
+
+### 🔒 Local SSL & WebSockets (Herd / Valet Setup)
+When running your local site over HTTPS (e.g. using Laravel Herd or Valet), browsers block insecure WebSocket connections (`ws://`). To route secure WebSockets (`wss://`) through port `443` without certificate errors:
+
+1. **Configure Herd Nginx Proxy**:
+   Add this location block to your site's Nginx configuration (located at `~/.config/herd/config/valet/Nginx/laravelstarterkit.test.conf` on Windows or `~/.config/valet/Nginx/your-site.conf` on macOS):
+   ```nginx
+   location /app {
+       proxy_pass http://127.0.0.1:8080;
+       proxy_http_version 1.1;
+       proxy_set_header Upgrade $http_upgrade;
+       proxy_set_header Connection "Upgrade";
+       proxy_set_header Host $host;
+       proxy_set_header X-Real-IP $remote_addr;
+       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+       proxy_set_header X-Forwarded-Proto $scheme;
+   }
+   ```
+   *After editing, restart Herd/Valet using `herd restart` (or `valet restart`).*
+
+2. **Configure Environment (`.env`)**:
+   Ensure you decouple backend local communication from the secure frontend connection:
+   ```env
+   # Backend connects locally via HTTP
+   REVERB_HOST="127.0.0.1"
+   REVERB_PORT=8080
+   REVERB_SCHEME=http
+
+   # Frontend connects securely via Nginx proxy on port 443
+   VITE_REVERB_HOST="laravelstarterkit.test"
+   VITE_REVERB_PORT=443
+   VITE_REVERB_SCHEME=https
+   ```
 
 ---
 
